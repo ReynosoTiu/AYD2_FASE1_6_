@@ -39,11 +39,11 @@ Funcionalidades Clave:
 
 
 ## Diagrama de CDU de Alto Nivel 
-![Diagrama Caso Alto Nivel](/imagenes/DiagramaAltoNivel.PNG)
+![Diagrama Caso Alto Nivel](/imagenes/DiagramaAltoNivel.png)
 
 ### Casos de Uso
-![Diagrama Caso de Uso 1](/imagenes/caso1.PNG)
-![Diagrama Caso de Uso 2](/imagenes/caso2.PNG)
+![Diagrama Caso de Uso 1](/imagenes/caso1.png)
+![Diagrama Caso de Uso 2](/imagenes/caso2.png)
 ![Diagrama Caso de Uso 3](/imagenes/caso3.PNG)
 ![Diagrama Caso de Uso 4](/imagenes/caso4.PNG)
 ![Diagrama Caso de Uso 5](/imagenes/caso5.PNG)
