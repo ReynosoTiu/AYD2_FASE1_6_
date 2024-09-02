@@ -197,7 +197,8 @@ Funcionalidades Clave:
 # Estilo arquitectonico propuesto (En capas)
 ![Estilo en capas](/diagramas/estiloarqui.png)
 
-
+# Diagrama de componentes
+![Componentes](/diagramas/componentes.png)
 
 # Diagrama entidad relación
 ![ER](/diagramas/er.png)
