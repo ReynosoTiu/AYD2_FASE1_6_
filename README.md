@@ -192,7 +192,7 @@ Funcionalidades Clave:
 ![Diagrama Caso de Uso 19](/imagenes/caso19-1.png)
 ![Diagrama Caso de Uso 20](/imagenes/caso20-1.png)
 ![Diagrama Caso de Uso 21](/imagenes/caso21-1.png)
-![Diagrama Caso de Uso 22](/imagenes/caso22-1.ng)
+![Diagrama Caso de Uso 22](/imagenes/caso22-1.png)
 
 ## Matrices de Trazabilidad
 
