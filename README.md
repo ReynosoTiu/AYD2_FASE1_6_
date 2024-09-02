@@ -173,46 +173,46 @@ Funcionalidades Clave:
 
 ![Diagrama Caso de Uso 1](/imagenes/caso1-1.png)
 ![Diagrama Caso de Uso 2](/imagenes/caso2-1.png)
-![Diagrama Caso de Uso 3](/imagenes/caso3-1.PNG)
-![Diagrama Caso de Uso 4](/imagenes/caso4-1.PNG)
-![Diagrama Caso de Uso 5](/imagenes/caso5-1.PNG)
-![Diagrama Caso de Uso 6](/imagenes/caso6-1.PNG)
-![Diagrama Caso de Uso 7](/imagenes/caso7-1.PNG)
-![Diagrama Caso de Uso 8](/imagenes/caso8-1.PNG)
-![Diagrama Caso de Uso 9](/imagenes/caso9-1.PNG)
-![Diagrama Caso de Uso 10](/imagenes/caso10-1.PNG)
-![Diagrama Caso de Uso 11](/imagenes/caso11-1.PNG)
-![Diagrama Caso de Uso 12](/imagenes/caso12-1.PNG)
-![Diagrama Caso de Uso 13](/imagenes/caso13-1.PNG)
-![Diagrama Caso de Uso 14](/imagenes/caso14-1.PNG)
-![Diagrama Caso de Uso 15](/imagenes/caso15-1.PNG)
-![Diagrama Caso de Uso 16](/imagenes/caso16-1.PNG)
-![Diagrama Caso de Uso 17](/imagenes/caso17-1.PNG)
-![Diagrama Caso de Uso 18](/imagenes/caso18-1.PNG)
-![Diagrama Caso de Uso 19](/imagenes/caso19-1.PNG)
-![Diagrama Caso de Uso 20](/imagenes/caso20-1.PNG)
-![Diagrama Caso de Uso 21](/imagenes/caso21-1.PNG)
-![Diagrama Caso de Uso 22](/imagenes/caso22-1.PNG)
+![Diagrama Caso de Uso 3](/imagenes/caso3-1.png)
+![Diagrama Caso de Uso 4](/imagenes/caso4-1.png)
+![Diagrama Caso de Uso 5](/imagenes/caso5-1.png)
+![Diagrama Caso de Uso 6](/imagenes/caso6-1.png)
+![Diagrama Caso de Uso 7](/imagenes/caso7-1.png)
+![Diagrama Caso de Uso 8](/imagenes/caso8-1.png)
+![Diagrama Caso de Uso 9](/imagenes/caso9-1.png)
+![Diagrama Caso de Uso 10](/imagenes/caso10-1.png)
+![Diagrama Caso de Uso 11](/imagenes/caso11-1.png)
+![Diagrama Caso de Uso 12](/imagenes/caso12-1.png)
+![Diagrama Caso de Uso 13](/imagenes/caso13-1.png)
+![Diagrama Caso de Uso 14](/imagenes/caso14-1.png)
+![Diagrama Caso de Uso 15](/imagenes/caso15-1.png)
+![Diagrama Caso de Uso 16](/imagenes/caso16-1.png)
+![Diagrama Caso de Uso 17](/imagenes/caso17-1.png)
+![Diagrama Caso de Uso 18](/imagenes/caso18-1.png)
+![Diagrama Caso de Uso 19](/imagenes/caso19-1.png)
+![Diagrama Caso de Uso 20](/imagenes/caso20-1.png)
+![Diagrama Caso de Uso 21](/imagenes/caso21-1.png)
+![Diagrama Caso de Uso 22](/imagenes/caso22-1.ng)
 
 ## Matrices de Trazabilidad
 
 ### Stakeholders vs Requerimientos
 
-![Stakeholders vs Requerimientos](/imagenes/stkvsreq.PNG)
+![Stakeholders vs Requerimientos](/imagenes/stkvsreq.png)
 
 ### Stakeholders vs Casos de uso
 
-![Stakeholders vs CDU1](/imagenes/stkvscdu1.PNG)
-![Stakeholders vs CDU2](/imagenes/stkvscdu2.PNG)
+![Stakeholders vs CDU1](/imagenes/stkvscdu1.png)
+![Stakeholders vs CDU2](/imagenes/stkvscdu2.png)
 
 ### Requerimientos vs Casos de uso
 
-![Requerimientos vs CDU1](/imagenes/reqvscdu1.PNG)
-![Requerimientos vs CDU2](/imagenes/reqvscdu2.PNG)
+![Requerimientos vs CDU1](/imagenes/reqvscdu1.png)
+![Requerimientos vs CDU2](/imagenes/reqvscdu2.png)
 
 ## Diagrama de Despliegue
 
-![Diagrama de despliegue de la arquitectura](/imagenes/diagramaDespliegue.PNG)
+![Diagrama de despliegue de la arquitectura](/imagenes/diagramaDespliegue.png)
 
 **Patrones de diseño propuestos**
 
