@@ -21,6 +21,7 @@
 
 ## Antecedentes
 La empresa Qnave es una compañía guatemalteca de transporte privado, ha experimentado un crecimiento significativo en la demanda de sus servicios. Inicialmente, la gestión de interacciones entre usuarios y conductores era a través de llamadas telefónicas y manejada únicamente por el administrador, pero enfrentó problemas significativos debido a la pandemia y a la creciente delincuencia organizada en el país. Estos problemas incluyeron asaltos y amenazas que afectaron tanto a conductores como a usuarios, resultando en la pérdida de conductores y en la migración de usuarios hacia competidores con mayores garantías de seguridad.
+
 Para abordar estos desafíos se decidió modernizar la empresa mediante una solución tecnológica que mejore la eficiencia y seguridad del servicio. Se contrató a un programador freelance para desarrollar esta solución, pero la falta de claridad en la documentación presentó dudas sobre la viabilidad y sostenibilidad del proyecto. El objetivo es optimizar los costos operativos y posicionar a Qnave como líder en el mercado de transporte privado en Guatemala.
 
 Problemas Identificados:
@@ -43,6 +44,7 @@ Funcionalidades Clave:
 ### Casos de Uso
 ![Diagrama Qnave](/imagenes/caso1.PNG)
 ![Diagrama Qnave](/imagenes/caso2.PNG)
+![Diagrama Qnave](/imagenes/caso3.PNG)
 ## Primera Descomposición del Diagrama
 ###	Usuario:
 -	Registro: Validación de datos, confirmación por correo electrónico.
