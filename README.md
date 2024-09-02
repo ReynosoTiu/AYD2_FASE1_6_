@@ -39,12 +39,32 @@ Funcionalidades Clave:
 
 
 ## Diagrama de CDU de Alto Nivel 
-![Diagrama Qnave](/imagenes/DiagramaAltoNivel.PNG)
+![Diagrama Caso Alto Nivel](/imagenes/DiagramaAltoNivel.PNG)
 
 ### Casos de Uso
-![Diagrama Qnave](/imagenes/caso1.PNG)
-![Diagrama Qnave](/imagenes/caso2.PNG)
-![Diagrama Qnave](/imagenes/caso3.PNG)
+![Diagrama Caso de Uso 1](/imagenes/caso1.PNG)
+![Diagrama Caso de Uso 2](/imagenes/caso2.PNG)
+![Diagrama Caso de Uso 3](/imagenes/caso3.PNG)
+![Diagrama Caso de Uso 4](/imagenes/caso4.PNG)
+![Diagrama Caso de Uso 5](/imagenes/caso5.PNG)
+![Diagrama Caso de Uso 6](/imagenes/caso6.PNG)
+![Diagrama Caso de Uso 7](/imagenes/caso7.PNG)
+![Diagrama Caso de Uso 8](/imagenes/caso8.PNG)
+![Diagrama Caso de Uso 9](/imagenes/caso9.PNG)
+![Diagrama Caso de Uso 10](/imagenes/caso10.PNG)
+![Diagrama Caso de Uso 11](/imagenes/caso11.PNG)
+![Diagrama Caso de Uso 12](/imagenes/caso12.PNG)
+![Diagrama Caso de Uso 13](/imagenes/caso13.PNG)
+![Diagrama Caso de Uso 14](/imagenes/caso14.PNG)
+![Diagrama Caso de Uso 15](/imagenes/caso15.PNG)
+![Diagrama Caso de Uso 16](/imagenes/caso16.PNG)
+![Diagrama Caso de Uso 17](/imagenes/caso17.PNG)
+![Diagrama Caso de Uso 18](/imagenes/caso18.PNG)
+![Diagrama Caso de Uso 19](/imagenes/caso19.PNG)
+![Diagrama Caso de Uso 20](/imagenes/caso20.PNG)
+![Diagrama Caso de Uso 21](/imagenes/caso21.PNG)
+![Diagrama Caso de Uso 22](/imagenes/caso22.PNG)
+
 ## Primera Descomposición del Diagrama
 ###	Usuario:
 -	Registro: Validación de datos, confirmación por correo electrónico.
