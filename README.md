@@ -194,6 +194,13 @@ Funcionalidades Clave:
 - **Utilidad en el Proyecto:** se puede aplicar el patrón Decorator para añadir funcionalidades adicionales a los usuarios y conductores, como reportar problemas o agregar calificaciones, sin alterar las clases originales.
 
 **Patrones de diseño propuestos**
+# Estilo arquitectonico propuesto (En capas)
+![Estilo en capas](/diagramas/estiloarqui.png)
+
+
+
+# Diagrama entidad relación
+![ER](/diagramas/er.png)
 
 ## Actualización usuario
 ![ACTUALIZACIÓN](/prototypes/user/ACTUALIZACION.png)
