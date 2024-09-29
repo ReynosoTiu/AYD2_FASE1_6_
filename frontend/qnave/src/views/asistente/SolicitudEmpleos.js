@@ -8,56 +8,75 @@ function AsistenteSolicitudEmpleos() {
     edad: "",
     dpi: "",
     correo: "",
-    cv: null,
-    fotografia: null,
+    cvBase64: "",  // Aquí almacenaremos el CV en formato Base64
+    fotografiaBase64: "",  // Aquí almacenaremos la fotografía en formato Base64
     genero: "",
     estadoCivil: "",
     cuenta: "",
     direccion: ""
   });
 
-  const [responseMessage, setResponseMessage] = useState(""); // Para mostrar mensajes de éxito o error
+  const [mensaje, setMensaje] = useState("");
+
+  // Función para convertir un archivo en Base64
+  const convertirArchivoABase64 = (archivo) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(archivo);
+      reader.onload = () => resolve(reader.result.split(',')[1]); // Elimina el encabezado de la cadena Base64
+      reader.onerror = (error) => reject(error);
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const { name, files } = e.target;
-    setFormData({ ...formData, [name]: files[0] });
+    if (files.length > 0) {
+      const base64 = await convertirArchivoABase64(files[0]);
+      setFormData({ ...formData, [`${name}Base64`]: base64 });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    data.append("nombreCompleto", formData.nombreCompleto);
-    data.append("telefono", formData.telefono);
-    data.append("edad", formData.edad);
-    data.append("dpi", formData.dpi);
-    data.append("correo", formData.correo);
-    data.append("cv", formData.cv);
-    data.append("fotografia", formData.fotografia);
-    data.append("genero", formData.genero);
-    data.append("estadoCivil", formData.estadoCivil);
-    data.append("cuenta", formData.cuenta);
-    data.append("direccion", formData.direccion);
+
+    const data = {
+      nombreCompleto: formData.nombreCompleto,
+      telefono: formData.telefono,
+      edad: parseInt(formData.edad), // Convertimos a número
+      dpi: formData.dpi,
+      correo: formData.correo,
+      cvBase64: formData.cvBase64, // CV en Base64
+      fotografiaBase64: formData.fotografiaBase64, // Fotografía en Base64
+      genero: formData.genero,
+      estadoCivil: formData.estadoCivil,
+      cuenta: formData.cuenta,
+      direccion: formData.direccion
+    };
 
     try {
+      // Realizamos la solicitud POST o UPDATE
       const response = await fetch("http://localhost:5000/conductor/registrar", {
         method: "POST",
-        body: data
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
         const result = await response.json();
-        setResponseMessage("Solicitud enviada con éxito: " + result.message);
+        setMensaje("Solicitud enviada con éxito.");
       } else {
-        setResponseMessage("Error al enviar la solicitud.");
+        setMensaje("Error al enviar la solicitud.");
       }
     } catch (error) {
-      console.error("Error:", error);
-      setResponseMessage("Hubo un problema con la solicitud.");
+      console.error("Error al enviar la solicitud:", error);
+      setMensaje("Hubo un problema con la solicitud.");
     }
   };
 
@@ -121,7 +140,7 @@ function AsistenteSolicitudEmpleos() {
           />
         </div>
         <div className="mb-3">
-          <label className="form-label">Papelería Completa (CV)</label>
+          <label className="form-label">Papelería Completa (CV) <small>(Solo PDF)</small></label>
           <input
             type="file"
             className="form-control"
@@ -132,7 +151,7 @@ function AsistenteSolicitudEmpleos() {
           />
         </div>
         <div className="mb-3">
-          <label className="form-label">Fotografía</label>
+          <label className="form-label">Fotografía <small>(Solo PNG, JPEG)</small></label>
           <input
             type="file"
             className="form-control"
@@ -199,9 +218,9 @@ function AsistenteSolicitudEmpleos() {
         </button>
       </form>
 
-      {responseMessage && (
+      {mensaje && (
         <div className="alert mt-4" style={{ color: "#6dbd48" }}>
-          {responseMessage}
+          {mensaje}
         </div>
       )}
     </div>
