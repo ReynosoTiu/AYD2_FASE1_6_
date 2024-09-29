@@ -8,6 +8,7 @@ import AsistenteSolicitudEmpleos from "./views/asistente/SolicitudEmpleos";
 import AsistenteVerInformacion from "./views/asistente/verInformacion";
 import Login from "./views/Login/Login";
 import RegistrarConductor from "./views/conductor/registrarConductor";
+import RegistroUsuario from "./views/usuario/registrarUsuario";
 
 function LayoutConductor() {
   return <HeaderConductor></HeaderConductor>;
@@ -46,6 +47,11 @@ function App() {
             element={<AsistenteVerInformacion />}
           />
         </Route>
+
+        <Route
+          path="/registro-usuario"
+          element={<RegistroUsuario />}
+        ></Route>
       </Routes>
     </div>
   );
