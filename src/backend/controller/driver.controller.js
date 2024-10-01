@@ -366,3 +366,41 @@ export const finalizarViaje = async (req, res) => {
     }
 };
 
+export const cambiarContrasena = async (req, res) => {
+    const { UsuarioID, ContrasenaActual, NuevaContrasena } = req.body;
+
+    try {
+        const pool = await getConnection();
+
+        // Verificar si el usuario existe y obtener su contraseña
+        const usuario = await pool.request()
+            .input("UsuarioID", sql.Int, UsuarioID)
+            .query("SELECT Contrasena FROM Usuarios WHERE UsuarioID = @UsuarioID");
+
+        if (!usuario.recordset[0]) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        // Comparar la contraseña actual
+        const contrasenaActualHash = usuario.recordset[0].Contrasena;
+        const contrasenaCoincide = await bcrypt.compare(ContrasenaActual, contrasenaActualHash);
+        
+        if (!contrasenaCoincide) {
+            return res.status(401).json({ error: 'La contraseña actual es incorrecta' });
+        }
+
+        // Hashear la nueva contraseña antes de almacenarla
+        const nuevaContrasenaHash = await bcrypt.hash(NuevaContrasena, 10);
+
+        // Actualizar la contraseña y el campo ContrasenaTemporal en la base de datos
+        await pool.request()
+            .input("UsuarioID", sql.Int, UsuarioID)
+            .input("NuevaContrasena", sql.VarChar, nuevaContrasenaHash)
+            .query("UPDATE Usuarios SET Contrasena = @NuevaContrasena, ContrasenaTemporal = 0 WHERE UsuarioID = @UsuarioID");
+
+        res.status(200).json({ message: 'Contraseña cambiada exitosamente' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al cambiar la contraseña' });
+    }
+};
+
