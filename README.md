@@ -10,6 +10,7 @@
 | 201404341 |    Ocsael Neftalí Ramírez Castillo    |
 | 201314564 |     Ronald Geovany Ordóñez Xiloj      |
 | 201345136 |         José Luis Reynoso Tiu         |
+| 201712289 |    Henry Gabriel Peralta Martinez     |
 
 # <div align="center">Documentacion Qnave Fase1 </div>
 
@@ -339,3 +340,5 @@ Funcionalidades Clave:
 ## Captura 4
 
 ![TABLERO 4](/imagenes/tablero4.png)
+
+[Reuniones](https://drive.google.com/drive/folders/1QWEyw2ybwz3jrcjPp0EXiE5BnLzsjL3L?usp=drive_link)
