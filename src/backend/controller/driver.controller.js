@@ -9,6 +9,66 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+export const loginConductor = async (req, res) => {
+    const { CorreoElectronico, Contrasena, CodigoEmpleado } = req.body;
+
+    // Validar que se ingrese correo electrónico o código de empleado
+    if (!CorreoElectronico && !CodigoEmpleado) {
+        return res.status(400).json({ error: 'Debes ingresar correo electrónico o código de empleado.' });
+    }
+    if (!Contrasena) {
+        return res.status(400).json({ error: 'Debes ingresar la contraseña.' });
+    }
+    try {
+        const pool = await getConnection();
+        let usuario;
+
+        // Buscar al usuario por correo electrónico o código de empleado
+        if (CorreoElectronico) {
+            usuario = await pool.request()
+                .input("CorreoElectronico", sql.VarChar, CorreoElectronico)
+                .query("SELECT * FROM Usuarios WHERE CorreoElectronico = @CorreoElectronico AND TipoUsuario = 'Conductor';");
+        } else if (CodigoEmpleado) {
+            usuario = await pool.request()
+                .input("CodigoEmpleado", sql.VarChar, CodigoEmpleado)
+                .query("SELECT * FROM Usuarios WHERE CodigoEmpleado = @CodigoEmpleado AND TipoUsuario = 'Conductor';");
+        }
+
+        // Verificar si el usuario fue encontrado
+        if (!usuario.recordset[0]) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        const userData = usuario.recordset[0];
+
+        // Verificar la contraseña utilizando bcrypt
+        const match = await bcrypt.compare(Contrasena, userData.Contrasena);
+        if (!match) {
+            return res.status(400).json({ error: 'Contraseña incorrecta' });
+        }
+
+        // Verificar si la contraseña es temporal
+        if (userData.ContrasenaTemporal) {
+            // Si es temporal, pedir al usuario que cambie su contraseña
+            return res.status(200).json({
+                message: 'Contraseña temporal, es necesario cambiar la contraseña.',
+                temporal: true // Indicar al cliente que la contraseña es temporal
+            });
+        }
+
+        // Si la contraseña no es temporal, el inicio de sesión es exitoso
+        return res.status(200).json({
+            message: 'Inicio de sesión exitoso.',
+            temporal: false // La contraseña no es temporal
+        });
+        
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Error al iniciar sesión' });
+    }
+};
+
+
 export const registerConductor = async (req, res) => {
     const {
         NombreCompleto,
@@ -48,6 +108,20 @@ export const registerConductor = async (req, res) => {
 
         if (existingUser.recordset[0].Count > 0) {
             return res.status(400).json({ error: 'El DPI o el correo electrónico ya están registrados' });
+        }
+
+        // Verificar si el número de placa ya existe
+        const existingPlaca = await pool
+            .request()
+            .input("NumeroPlaca", sql.VarChar, NumeroPlaca)
+            .query(`
+                SELECT COUNT(*) AS Count 
+                FROM Conductores 
+                WHERE NumeroPlaca = @NumeroPlaca;
+            `);
+
+        if (existingPlaca.recordset[0].Count > 0) {
+            return res.status(400).json({ error: 'El número de placa ya está en uso' });
         }
 
         // Generar código de empleado y contraseña temporal
@@ -132,3 +206,163 @@ export const registerConductor = async (req, res) => {
         res.status(500).json({ error: 'Error al registrar el conductor' });
     }
 };
+
+
+export const aceptarViaje = async (req, res) => {
+    const { ConductorID, ViajeID } = req.body;
+
+    try {
+        const pool = await getConnection();
+
+        // Verificar si el viaje ya fue aceptado
+        const viaje = await pool.request()
+            .input("ViajeID", sql.Int, ViajeID)
+            .query("SELECT Estado FROM Viajes WHERE ViajeID = @ViajeID");
+
+        if (viaje.recordset[0].Estado !== 'Pendiente') {
+            return res.status(400).json({ error: 'El viaje ya fue aceptado o está en progreso.' });
+        }
+
+        // Actualizar el estado del viaje
+        await pool.request()
+            .input("ConductorID", sql.Int, ConductorID)
+            .input("ViajeID", sql.Int, ViajeID)
+            .query("UPDATE Viajes SET ConductorID = @ConductorID, Estado = 'Aceptado' WHERE ViajeID = @ViajeID");
+
+        res.status(200).json({ message: 'Viaje aceptado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al aceptar el viaje' });
+    }
+};
+
+
+export const cancelarViaje = async (req, res) => {
+    const { ConductorID, ViajeID, Motivo } = req.body;
+
+    try {
+        const pool = await getConnection();
+
+        // Verificar si el viaje fue aceptado
+        const viaje = await pool.request()
+            .input("ViajeID", sql.Int, ViajeID)
+            .query("SELECT Estado FROM Viajes WHERE ViajeID = @ViajeID");
+
+        if (viaje.recordset[0].Estado !== 'Aceptado') {
+            return res.status(400).json({ error: 'El viaje no ha sido aceptado.' });
+        }
+
+        // Actualizar el estado del viaje a 'Cancelado'
+        await pool.request()
+            .input("ViajeID", sql.Int, ViajeID)
+            .query("UPDATE Viajes SET Estado = 'Cancelado' WHERE ViajeID = @ViajeID");
+
+        // Registrar la cancelación
+        await pool.request()
+            .input("ConductorID", sql.Int, ConductorID)
+            .input("ViajeID", sql.Int, ViajeID)
+            .input("Motivo", sql.VarChar, Motivo)
+            .query("INSERT INTO Cancelaciones (ConductorID, ViajeID, Motivo) VALUES (@ConductorID, @ViajeID, @Motivo)");
+
+        res.status(200).json({ message: 'Viaje cancelado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al cancelar el viaje' });
+    }
+};
+
+export const reportarProblema = async (req, res) => {
+    const { UsuarioID, ViajeID, Categoria, Descripcion, EvidenciaBase64 } = req.body;
+
+    try {
+        const pool = await getConnection();
+
+        // Guardar el reporte del problema
+        const reportId = await pool.request()
+            .input("UsuarioID", sql.Int, UsuarioID)
+            .input("ViajeID", sql.Int, ViajeID)
+            .input("Categoria", sql.VarChar, Categoria)
+            .input("Descripcion", sql.VarChar, Descripcion)
+            .query("INSERT INTO ReportesProblemas (UsuarioID, ViajeID, Categoria, Descripcion) OUTPUT INSERTED.ReporteID VALUES (@UsuarioID, @ViajeID, @Categoria, @Descripcion)");
+
+        const ReporteID = reportId.recordset[0].ReporteID;
+
+        // Guardar el archivo PDF en base64
+        if (EvidenciaBase64) {
+            const base64Data = EvidenciaBase64.replace(/^data:application\/pdf;base64,/, '');
+            const pdfFilename = `${uuidv4()}_evidencia.pdf`;
+            const pdfFilePath = path.join(__dirname, '../uploads', pdfFilename);
+            
+            // Asegurarse de que la carpeta exista
+            if (!fs.existsSync(path.join(__dirname, '../uploads'))) {
+                fs.mkdirSync(path.join(__dirname, '../uploads'));
+            }
+
+            // Escribir el archivo PDF
+            fs.writeFileSync(pdfFilePath, base64Data, 'base64');
+
+            // Actualizar el reporte con la ruta del archivo
+            await pool.request()
+                .input("ReporteID", sql.Int, ReporteID)
+                .input("Evidencia", sql.VarChar, pdfFilename)
+                .query("UPDATE ReportesProblemas SET Evidencia = @Evidencia WHERE ReporteID = @ReporteID");
+        }
+
+        res.status(200).json({ message: 'Problema reportado exitosamente' });
+    } catch (error) {
+        console.error('Error al reportar el problema:', error);
+        res.status(500).json({ error: 'Error al reportar el problema' });
+    }
+};
+
+
+export const verInformacionUsuario = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const pool = await getConnection();
+
+        const usuarioInfo = await pool.request()
+            .input("UsuarioID", sql.Int, id)
+            .query("SELECT NombreCompleto, Calificacion, NumeroViajes, Comentarios FROM InformacionUsuarios WHERE UsuarioID = @UsuarioID");
+
+        if (!usuarioInfo.recordset[0]) {
+            return res.status(404).json({ error: 'Información del usuario no encontrada' });
+        }
+
+        res.status(200).json(usuarioInfo.recordset[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener información del usuario' });
+    }
+};
+
+export const finalizarViaje = async (req, res) => {
+    const { ViajeID, PagoRecibido } = req.body;
+
+    // Validar la entrada
+    if (!ViajeID || typeof PagoRecibido !== 'boolean') {
+        return res.status(400).json({ error: 'El ViajeID y el estado del pago son obligatorios' });
+    }
+
+    try {
+        const pool = await getConnection();
+
+        // Verificar el estado del viaje antes de finalizar
+        const viaje = await pool.request()
+            .input("ViajeID", sql.Int, ViajeID)
+            .query("SELECT Estado FROM Viajes WHERE ViajeID = @ViajeID");
+
+        if (!viaje.recordset.length || viaje.recordset[0].Estado !== 'En curso') {
+            return res.status(400).json({ error: 'El viaje no puede ser finalizado' });
+        }
+
+        // Finalizar el viaje
+        await pool.request()
+            .input("ViajeID", sql.Int, ViajeID)
+            .input("PagoRecibido", sql.Bit, PagoRecibido)
+            .query("UPDATE Viajes SET Estado = 'Finalizado', PagoRecibido = @PagoRecibido, FechaHoraFin = GETDATE() WHERE ViajeID = @ViajeID");
+
+        res.status(200).json({ message: 'Viaje finalizado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al finalizar el viaje' });
+    }
+};
+
