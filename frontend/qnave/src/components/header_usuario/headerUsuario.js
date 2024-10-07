@@ -39,7 +39,7 @@ function HeaderUsuario() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link active" to="/">
+                <Link className="nav-link active" to="/usuario/pedirviaje">
                   <strong>Pedir Viaje</strong>
                 </Link>
               </li>

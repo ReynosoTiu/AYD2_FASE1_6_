@@ -9,6 +9,8 @@ import AsistenteVerInformacion from "./views/asistente/verInformacion";
 import Login from "./views/Login/Login";
 import RegistrarConductor from "./views/conductor/registrarConductor";
 import RegistroUsuario from "./views/usuario/registrarUsuario";
+import HomeUsuario from "./views/usuario/homeUsuario";
+import PedirViaje from "./views/usuario/pedirViaje";
 
 function LayoutConductor() {
   return <HeaderConductor></HeaderConductor>;
@@ -51,6 +53,14 @@ function App() {
         <Route
           path="/registro-usuario"
           element={<RegistroUsuario />}
+        ></Route>
+        <Route
+          path="/usuario/home"
+          element={<HomeUsuario />}
+        ></Route>
+        <Route
+          path="/usuario/pedirviaje"
+          element={<PedirViaje />}
         ></Route>
       </Routes>
     </div>
