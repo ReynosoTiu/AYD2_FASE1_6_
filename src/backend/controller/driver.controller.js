@@ -9,65 +9,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const loginConductor = async (req, res) => {
-    const { CorreoElectronico, Contrasena, CodigoEmpleado } = req.body;
-
-    // Validar que se ingrese correo electrónico o código de empleado
-    if (!CorreoElectronico && !CodigoEmpleado) {
-        return res.status(400).json({ error: 'Debes ingresar correo electrónico o código de empleado.' });
-    }
-    if (!Contrasena) {
-        return res.status(400).json({ error: 'Debes ingresar la contraseña.' });
-    }
-    try {
-        const pool = await getConnection();
-        let usuario;
-
-        // Buscar al usuario por correo electrónico o código de empleado
-        if (CorreoElectronico) {
-            usuario = await pool.request()
-                .input("CorreoElectronico", sql.VarChar, CorreoElectronico)
-                .query("SELECT * FROM Usuarios WHERE CorreoElectronico = @CorreoElectronico AND TipoUsuario = 'Conductor';");
-        } else if (CodigoEmpleado) {
-            usuario = await pool.request()
-                .input("CodigoEmpleado", sql.VarChar, CodigoEmpleado)
-                .query("SELECT * FROM Usuarios WHERE CodigoEmpleado = @CodigoEmpleado AND TipoUsuario = 'Conductor';");
-        }
-
-        // Verificar si el usuario fue encontrado
-        if (!usuario.recordset[0]) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-
-        const userData = usuario.recordset[0];
-
-        // Verificar la contraseña utilizando bcrypt
-        const match = await bcrypt.compare(Contrasena, userData.Contrasena);
-        if (!match) {
-            return res.status(400).json({ error: 'Contraseña incorrecta' });
-        }
-
-        // Verificar si la contraseña es temporal
-        if (userData.ContrasenaTemporal) {
-            // Si es temporal, pedir al usuario que cambie su contraseña
-            return res.status(200).json({
-                message: 'Contraseña temporal, es necesario cambiar la contraseña.',
-                temporal: true // Indicar al cliente que la contraseña es temporal
-            });
-        }
-
-        // Si la contraseña no es temporal, el inicio de sesión es exitoso
-        return res.status(200).json({
-            message: 'Inicio de sesión exitoso.',
-            temporal: false // La contraseña no es temporal
-        });
-        
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: 'Error al iniciar sesión' });
-    }
-};
-
 
 export const registerConductor = async (req, res) => {
     const {

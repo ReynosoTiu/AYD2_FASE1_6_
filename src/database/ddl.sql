@@ -26,7 +26,7 @@ CREATE TABLE Conductores (
     MarcaVehiculo NVARCHAR(50),
     AnioVehiculo INT,
     CV NVARCHAR(MAX),  -- Ruta al archivo PDF del CV
-    Estatus NVARCHAR(20) DEFAULT 'Activo',  -- 'Activo', 'Suspendido', 'Inactivo'
+    Estatus NVARCHAR(20) DEFAULT 'Inactivo',  -- 'Activo', 'Suspendido', 'Inactivo','Rechazado'
     Calificacion DECIMAL(3,2) DEFAULT 0,
     NumeroViajes INT DEFAULT 0
 );
@@ -103,4 +103,23 @@ CREATE TABLE ConfirmacionesRegistro (
     UsuarioID INT FOREIGN KEY REFERENCES Usuarios(UsuarioID),
     CorreoConfirmado BIT DEFAULT 0,
     FechaEnvioCorreo DATETIME DEFAULT GETDATE()
+);
+
+
+-- Tabla para registrar la baja de conductores
+CREATE TABLE BajasConductores (
+    BajaID INT IDENTITY(1,1) PRIMARY KEY,
+    ConductorID INT FOREIGN KEY REFERENCES Conductores(ConductorID),
+    Motivo NVARCHAR(255) NOT NULL,
+    FechaBaja DATETIME DEFAULT GETDATE(),
+    BajaPor NVARCHAR(255) NOT NULL  -- Nombre del asistente que dio de baja al conductor
+);
+
+
+CREATE TABLE BajasUsuarios (
+    BajaID INT IDENTITY(1,1) PRIMARY KEY,
+    UsuarioID INT FOREIGN KEY REFERENCES Usuarios(UsuarioID),
+    Motivo NVARCHAR(255) NOT NULL,
+    FechaBaja DATETIME DEFAULT GETDATE(),
+    BajaPor NVARCHAR(255) NOT NULL
 );
