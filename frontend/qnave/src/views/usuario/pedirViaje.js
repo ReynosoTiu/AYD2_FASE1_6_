@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Form, Button, Row, Col, Modal } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HeaderUsuario from "../../components/header_usuario/headerUsuario";
 
@@ -51,8 +50,6 @@ const PedirViaje = () => {
   const [puntoB, setPuntoB] = useState('');
   const [tarifa, setTarifa] = useState(0);
   const [showModal, setShowModal] = useState(false);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (puntoA && puntoB) {
@@ -145,9 +142,6 @@ const PedirViaje = () => {
                   style={{ marginRight: '10px' }}
                 >
                   Solicitar viaje
-                </Button>
-                <Button variant="danger" onClick={() => navigate('/usuario/home')}>
-                  Cancelar
                 </Button>
               </Col>
             </Row>

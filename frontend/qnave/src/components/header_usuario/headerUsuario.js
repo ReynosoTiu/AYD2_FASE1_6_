@@ -7,7 +7,7 @@ function HeaderUsuario() {
     <div>
       <nav className={"navbar navbar-expand-lg bg-body-tertiary mb-4"}>
         <div className="container-fluid">
-          <Link className="navbar-brand" to="/">
+          <Link className="navbar-brand" to="/usuario/home">
             <img src={logo} alt="logo" className={styles.logo} />
           </Link>
           <button
@@ -21,26 +21,35 @@ function HeaderUsuario() {
           >
             <span className="navbar-toggler-icon"></span>
           </button>
+          
           <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav">
+            <ul className="navbar-nav me-auto">
               <li className="nav-item">
-                <Link className="nav-link active" to="/">
+                <Link className="nav-link active" to="/usuario/pedirviaje">
+                  <strong>Pedir Viaje</strong>
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link active" to="/usuario/verconductor">
                   <strong>Ver Información del Conductor</strong>
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link active" to="/">
+                <Link className="nav-link active" to="/usuario/reportarproblema">
                   <strong>Reportar Algún Problema</strong>
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link active" to="/">
+                <Link className="nav-link active" to="/usuario/cancelarviaje">
                   <strong>Cancelar Viaje</strong>
                 </Link>
               </li>
+            </ul>
+
+            <ul className="navbar-nav ms-auto">
               <li className="nav-item">
-                <Link className="nav-link active" to="/usuario/pedirviaje">
-                  <strong>Pedir Viaje</strong>
+                <Link className="nav-link active" to="/">
+                  <strong>Cerrar sesión</strong>
                 </Link>
               </li>
             </ul>

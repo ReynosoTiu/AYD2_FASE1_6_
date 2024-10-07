@@ -3,7 +3,7 @@ function HomeUsuario() {
     return (
         <>
             <HeaderUsuario />
-            <p>BIENVENIDO USUARIO</p>;
+            <h3><center>Hola USUARIO bienvenido a la aplicación de QNAVE</center></h3>
         </>
     );
 }
