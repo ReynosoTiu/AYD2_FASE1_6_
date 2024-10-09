@@ -69,7 +69,9 @@ CREATE TABLE Cancelaciones (
     CancelacionID INT IDENTITY(1,1) PRIMARY KEY,
     ConductorID INT FOREIGN KEY REFERENCES Conductores(ConductorID),
     ViajeID INT FOREIGN KEY REFERENCES Viajes(ViajeID),
+    UsuarioID INT FOREIGN KEY REFERENCES Usuarios(UsuarioID),
     Motivo NVARCHAR(255),
+    RolCancelacion INT,
     FechaCancelacion DATETIME DEFAULT GETDATE(),
     Justificacion NVARCHAR(MAX)  -- Para cuando un conductor excede el límite de cancelaciones
 );

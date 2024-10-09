@@ -6,9 +6,9 @@ import {
 const router = Router();
 
 router.post("/asistant/register", registerAsistente);
-router.get("/asistant/getDriverPending", listarConductoresInactivos);
+router.get("/asistant/getDriverPendingList", listarConductoresInactivos);
 router.get("/asistant/getDriverPending/:id", obtenerConductorInactivoPorID);
-router.post("/asistant/getDrivers", obtenerConductoresBasicos);
+router.post("/asistant/getDriversList", obtenerConductoresBasicos);
 router.get("/asistant/getDriverById/:id", obtenerConductorDetallesPorID);
 router.post("/asistant/getUsers", obtenerUsuarios);
 router.post("/asistant/getUserById/:id", obtenerDetalleUsuario);

@@ -166,16 +166,17 @@ export const cancelarViaje = async (req, res) => {
 };
 
 export const pedirViaje = async (req, res) => {
-    const { zonaInicio, zonaFin } = req.body;
+    const { zonaInicio, zonaFin, usuarioId } = req.body;
 
-    if (!zonaInicio || !zonaFin) {
-        return res.status(400).json({ error: 'Zona de inicio y zona de fin son requeridas' });
+    if (!zonaInicio || !zonaFin || !usuarioId) {
+        return res.status(400).json({ error: 'Zona de inicio, zona de fin y UsuarioID son requeridos' });
     }
 
     try {
         const pool = await getConnection();
 
-        const tarifa = await pool.request()
+        // Obtener la tarifa de la tabla tarifas
+        const tarifaResult = await pool.request()
             .input('zonaInicio', sql.VarChar, zonaInicio)
             .input('zonaFin', sql.VarChar, zonaFin)
             .query(`
@@ -184,23 +185,27 @@ export const pedirViaje = async (req, res) => {
                 WHERE punto_partida = @zonaInicio AND punto_destino = @zonaFin
             `);
 
-        if (tarifa.recordset.length === 0) {
+        if (tarifaResult.recordset.length === 0) {
             return res.status(400).json({ error: 'No existe tarifa para las zonas seleccionadas' });
         }
 
+        const tarifa = tarifaResult.recordset[0].tarifa;  // Ajustar el nombre del campo a minúsculas
+
+        // Insertar el viaje en la tabla Viajes
         const result = await pool.request()
+            .input('usuarioId', sql.Int, usuarioId)
             .input('zonaInicio', sql.VarChar, zonaInicio)
             .input('zonaFin', sql.VarChar, zonaFin)
-            .input('tarifa', sql.Decimal, tarifa.recordset[0].Tarifa)
+            .input('tarifa', sql.Decimal, tarifa)
             .query(`
-                INSERT INTO Viajes (ZonaInicio, ZonaFin, Tarifa, Estado)
+                INSERT INTO Viajes (UsuarioID, ZonaInicio, ZonaFin, FechaHoraInicio, Tarifa, Estado)
                 OUTPUT INSERTED.ViajeID
-                VALUES (@zonaInicio, @zonaFin, @tarifa, 'Pendiente');
+                VALUES (@usuarioId, @zonaInicio, @zonaFin, GETDATE(), @tarifa, 'Pendiente');
             `);
 
         res.status(201).json({
             viajeId: result.recordset[0].ViajeID,
-            tarifa: tarifa.recordset[0].Tarifa,
+            tarifa,
             estado: 'Pendiente'
         });
     } catch (error) {
