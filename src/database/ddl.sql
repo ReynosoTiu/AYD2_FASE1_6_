@@ -123,8 +123,8 @@ CREATE TABLE BajasUsuarios (
     FechaBaja DATETIME DEFAULT GETDATE(),
     BajaPor NVARCHAR(255) NOT NULL
 );
-CREATE TABLE tarifas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE Tarifas (
+    id INT IDENTITY(1,1) PRIMARY KEY,
     punto_partida VARCHAR(50),
     punto_destino VARCHAR(50),
     tarifa DECIMAL(10, 2)

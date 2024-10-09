@@ -179,9 +179,9 @@ export const pedirViaje = async (req, res) => {
             .input('zonaInicio', sql.VarChar, zonaInicio)
             .input('zonaFin', sql.VarChar, zonaFin)
             .query(`
-                SELECT Tarifa 
-                FROM Tarifas 
-                WHERE ZonaInicio = @zonaInicio AND ZonaFin = @zonaFin
+                SELECT tarifa 
+                FROM tarifas 
+                WHERE punto_partida = @zonaInicio AND punto_destino = @zonaFin
             `);
 
         if (tarifa.recordset.length === 0) {
