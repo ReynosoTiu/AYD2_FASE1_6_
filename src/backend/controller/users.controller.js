@@ -6,16 +6,19 @@ import bcrypt from 'bcrypt';
 export const registerUsuario = async (req, res) => {
     const {
         NombreCompleto,
-        FechaNacimiento,
-        Genero,
-        Correo,
-        NumeroCelular,
+        Telefono,
+        Edad,
+        DPI,
+        CorreoElectronico,
         Contrasena,
-        ConfirmarContrasena
+        ConfirmarContrasena,
+        Genero,
+        EstadoCivil,
+        Direccion
     } = req.body;
 
     // Validar la entrada
-    if (!NombreCompleto || !FechaNacimiento || !Genero || !Correo || !NumeroCelular || !Contrasena || !ConfirmarContrasena) {
+    if (!NombreCompleto || !Telefono || !Edad || !DPI || !CorreoElectronico || !Contrasena || !ConfirmarContrasena || !Genero || !EstadoCivil || !Direccion) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
@@ -26,42 +29,44 @@ export const registerUsuario = async (req, res) => {
     try {
         const pool = await getConnection();
 
-        // Verificar si el correo ya existe
+        // Verificar si el DPI o correo ya existen
         const existingUser = await pool
             .request()
-            .input("CorreoElectronico", sql.VarChar, Correo)
+            .input("DPI", sql.VarChar, DPI)
+            .input("CorreoElectronico", sql.VarChar, CorreoElectronico)
             .query(`
                 SELECT COUNT(*) AS Count 
                 FROM Usuarios 
-                WHERE CorreoElectronico = @CorreoElectronico;
+                WHERE DPI = @DPI OR CorreoElectronico = @CorreoElectronico;
             `);
 
         if (existingUser.recordset[0].Count > 0) {
-            return res.status(400).json({ error: 'El correo electrónico ya está registrado' });
+            return res.status(400).json({ error: 'El DPI o el correo electrónico ya están registrados' });
         }
 
-        // Generar UUID para el usuario y encriptar la contraseña
-        const UsuarioUUID = `USER-${uuidv4().slice(0, 8).toUpperCase()}`;
+        // Encriptar la contraseña
         const hashedPassword = await bcrypt.hash(Contrasena, 10);
 
-        // Insertar datos en la tabla Usuarios
+        // Insertar datos en la tabla Usuarios y obtener el ID
         const usuarioResult = await pool.request()
             .input("NombreCompleto", sql.VarChar, NombreCompleto)
-            .input("FechaNacimiento", sql.Date, FechaNacimiento)
-            .input("Genero", sql.VarChar, Genero)
-            .input("CorreoElectronico", sql.VarChar, Correo)
-            .input("Telefono", sql.VarChar, NumeroCelular)
+            .input("Telefono", sql.VarChar, Telefono)
+            .input("Edad", sql.Int, Edad)
+            .input("DPI", sql.VarChar, DPI)
+            .input("CorreoElectronico", sql.VarChar, CorreoElectronico)
             .input("Contrasena", sql.VarChar, hashedPassword)
-            .input("TipoUsuario", sql.VarChar, 'Usuario')
+            .input("Direccion", sql.VarChar, Direccion)
+            .input("Genero", sql.VarChar, Genero)
+            .input("EstadoCivil", sql.VarChar, EstadoCivil)
             .query(`
-                INSERT INTO Usuarios (NombreCompleto, FechaNacimiento, Genero, CorreoElectronico, Telefono, Contrasena, TipoUsuario)
+                INSERT INTO Usuarios (NombreCompleto, Telefono, Edad, DPI, CorreoElectronico, Contrasena, Direccion, Genero, EstadoCivil, TipoUsuario)
                 OUTPUT INSERTED.UsuarioID
-                VALUES (@NombreCompleto, @FechaNacimiento, @Genero, @CorreoElectronico, @Telefono, @Contrasena, @TipoUsuario);
+                VALUES (@NombreCompleto, @Telefono, @Edad, @DPI, @CorreoElectronico, @Contrasena, @Direccion, @Genero, @EstadoCivil, 'Usuario');
             `);
 
         const UsuarioID = usuarioResult.recordset[0].UsuarioID;
 
-        // Insertar datos en la tabla InformacionUsuarios
+        // Insertar datos en la tabla InformacionUsuarios (opcional)
         await pool.request()
             .input("UsuarioID", sql.Int, UsuarioID)
             .query(`
@@ -71,7 +76,7 @@ export const registerUsuario = async (req, res) => {
 
         res.status(201).json({
             message: 'Usuario registrado con éxito',
-            UsuarioUUID
+            UsuarioID
         });
 
     } catch (error) {
@@ -79,7 +84,6 @@ export const registerUsuario = async (req, res) => {
         res.status(500).json({ error: 'Error al registrar el usuario' });
     }
 };
-
 export const getInfoConductor = async (req, res) => {
     const { viajeId } = req.params;
 
