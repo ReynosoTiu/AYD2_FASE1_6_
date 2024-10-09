@@ -461,3 +461,44 @@ export const darDeBajaUsuario = async (req, res) => {
 };
 
 
+export const aprobarRechazarConductor = async (req, res) => {
+    const { idConductor, estado} = req.body;
+
+    if (!idConductor || !estado ) {
+        return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    let status, msj = "";
+    if (estado === 1) {
+        status = "Activo";
+        msj = "activado";
+    } else if (estado === 2) {
+        status = "Rechazado";
+        msj = "rechazado";
+    } else {
+        return res.status(400).json({ error: 'Debe ingresar un estado valido' });
+    }
+
+    try {
+        const pool = await getConnection();
+        await pool.request()
+            .input("ConductorID", sql.Int, idConductor)
+            .input("status", sql.VarChar, status)
+            .query(`
+                UPDATE Conductores
+                SET
+                Estatus= @status
+                WHERE ConductorID = @ConductorID;
+            `);
+
+
+        res.status(200).json({
+            message: `El usuario con código ${idConductor} fué ${msj} con exito.`,
+        });
+
+    } catch (error) {
+        console.error('Error al obtener los detalles del conductor:', error);
+        res.status(500).json({ error: 'Error al obtener los detalles del conductor' });
+    }
+};
+

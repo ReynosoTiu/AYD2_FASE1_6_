@@ -123,7 +123,7 @@ export const registerConductor = async (req, res) => {
         const ConductorID = usuarioResult.recordset[0].UsuarioID; // Cambiado a UsuarioID
 
         // Insertar datos en la tabla Conductores
-        await pool.request()
+        const conductorResult = await pool.request()
             .input("ConductorID", sql.Int, ConductorID)
             .input("Fotografia", sql.VarChar, imageFilename)
             .input("FotografiaVehiculo", sql.VarChar, vehicleImageFilename)
@@ -139,7 +139,8 @@ export const registerConductor = async (req, res) => {
         res.status(201).json({
             message: 'Conductor registrado con éxito',
             CodigoEmpleado,
-            ContrasenaTemporal
+            ContrasenaTemporal,
+            ConductorID
         });
 
     } catch (error) {

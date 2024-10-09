@@ -22,11 +22,12 @@ export const registerUsuario = async (req, res) => {
         ConfirmarContrasena,
         Genero,
         EstadoCivil,
-        Direccion
+        Direccion,
+        FechaNacimiento
     } = req.body;
 
     // Validar la entrada
-    if (!NombreCompleto || !Telefono || !Edad || !DPI || !CorreoElectronico || !Contrasena || !ConfirmarContrasena || !Genero || !EstadoCivil || !Direccion) {
+    if (!NombreCompleto || !Telefono || !Edad || !DPI || !CorreoElectronico || !Contrasena || !ConfirmarContrasena || !Genero || !EstadoCivil || !Direccion || !FechaNacimiento) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
@@ -66,10 +67,11 @@ export const registerUsuario = async (req, res) => {
             .input("Direccion", sql.VarChar, Direccion)
             .input("Genero", sql.VarChar, Genero)
             .input("EstadoCivil", sql.VarChar, EstadoCivil)
+            .input("FechaNacimiento", sql.DateTime, FechaNacimiento)
             .query(`
-                INSERT INTO Usuarios (NombreCompleto, Telefono, Edad, DPI, CorreoElectronico, Contrasena, Direccion, Genero, EstadoCivil, TipoUsuario)
+                INSERT INTO Usuarios (NombreCompleto, Telefono, Edad, DPI, CorreoElectronico, Contrasena, Direccion, Genero, EstadoCivil, TipoUsuario, FechaNacimiento)
                 OUTPUT INSERTED.UsuarioID
-                VALUES (@NombreCompleto, @Telefono, @Edad, @DPI, @CorreoElectronico, @Contrasena, @Direccion, @Genero, @EstadoCivil, 'Usuario');
+                VALUES (@NombreCompleto, @Telefono, @Edad, @DPI, @CorreoElectronico, @Contrasena, @Direccion, @Genero, @EstadoCivil, 'Usuario', @FechaNacimiento);
             `);
 
         const UsuarioID = usuarioResult.recordset[0].UsuarioID;
