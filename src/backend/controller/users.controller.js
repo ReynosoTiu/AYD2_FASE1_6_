@@ -139,31 +139,57 @@ export const reportarProblema = async (req, res) => {
 };
 
 export const cancelarViaje = async (req, res) => {
-    const { viajeId } = req.params;
-    const { motivoCancelacion } = req.body;
+    const { viajeId, motivoCancelacion, justificacion, quienCancela, usuarioId, conductorId } = req.body;
 
+    // Validar si falta el motivo de cancelación
     if (!motivoCancelacion) {
         return res.status(400).json({ error: 'El motivo de cancelación es obligatorio' });
+    }
+
+    // Validar quien está cancelando
+    if (!quienCancela || (quienCancela !== 'Usuario' && quienCancela !== 'Conductor')) {
+        return res.status(400).json({ error: 'Debe especificar si la cancelación es realizada por "Usuario" o "Conductor"' });
     }
 
     try {
         const pool = await getConnection();
 
+        // Iniciar transacción
+       // await pool.request().query('BEGIN TRANSACTION');
+
+        // 1. Insertar la cancelación en la tabla Cancelaciones
+        const rolCancelacion = quienCancela === 'Usuario' ? 1 : 2;  // 1 para Usuario, 2 para Conductor
         await pool.request()
             .input('viajeId', sql.Int, viajeId)
+            .input('usuarioId', sql.Int, usuarioId || null)  // Puede ser null si lo cancela el conductor
+            .input('conductorId', sql.Int, conductorId || null)  // Puede ser null si lo cancela el usuario
             .input('motivoCancelacion', sql.VarChar, motivoCancelacion)
+            .input('justificacion', sql.VarChar, justificacion)
+            .input('rolCancelacion', sql.Int, rolCancelacion)
+            .query(`
+                INSERT INTO Cancelaciones (ConductorID, UsuarioID, ViajeID, Motivo, RolCancelacion, Justificacion)
+                VALUES (@conductorId, @usuarioId, @viajeId, @motivoCancelacion, @rolCancelacion, @justificacion)
+            `);
+
+        // 2. Actualizar el estado del viaje en la tabla Viajes
+        await pool.request()
+            .input('viajeId', sql.Int, viajeId)
             .query(`
                 UPDATE Viajes 
-                SET Estado = 'Cancelado', MotivoCancelacion = @motivoCancelacion 
+                SET Estado = 'Cancelado' 
                 WHERE ViajeID = @viajeId
             `);
 
+        // Confirmar la transacción
+       // await pool.request().query('COMMIT TRANSACTION');
+
         res.status(200).json({ message: 'Viaje cancelado exitosamente' });
-    } catch (error) {
-        console.error('Error al cancelar viaje:', error);
-        res.status(500).json({ error: 'Error al cancelar viaje' });
+    }  catch (error) {
+        console.error('Error al solicitar viaje:', error);
+        res.status(500).json({ error: 'Error al solicitar viaje' });
     }
 };
+
 
 export const pedirViaje = async (req, res) => {
     const { zonaInicio, zonaFin, usuarioId } = req.body;

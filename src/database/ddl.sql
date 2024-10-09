@@ -58,6 +58,8 @@ CREATE TABLE ReportesProblemas (
     ReporteID INT IDENTITY(1,1) PRIMARY KEY,
     UsuarioID INT FOREIGN KEY REFERENCES Usuarios(UsuarioID),
     ViajeID INT FOREIGN KEY REFERENCES Viajes(ViajeID),
+    ConductorID INT FOREIGN KEY REFERENCES Conductores(ConductorID),
+    RolCancelacion INT,
     Categoria NVARCHAR(50),
     Descripcion NVARCHAR(255),
     FechaReporte DATETIME DEFAULT GETDATE(),
