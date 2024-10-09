@@ -33,7 +33,7 @@ export const loginUsuario = async (req, res) => {
         } else if (NombreUsuario) {
             usuario = await pool.request()
                 .input("NombreUsuario", sql.VarChar, NombreUsuario)
-                .query("SELECT * FROM Usuarios WHERE NombreUsuario = @NombreUsuario;");
+                .query("SELECT * FROM Usuarios WHERE NombreUsuario = @NombreUsuario ;");
         } else if (CodigoEmpleado) {
             usuario = await pool.request()
                 .input("CodigoEmpleado", sql.VarChar, CodigoEmpleado)
@@ -47,6 +47,10 @@ export const loginUsuario = async (req, res) => {
 
         const userData = usuario.recordset[0];
 
+        if(userData.Activo==false){
+            return res.status(401).json({ error: 'Usuario no Autorizado.' });
+        }
+
         // Verificar la contraseña utilizando bcrypt
         const match = await bcrypt.compare(Contrasena, userData.Contrasena);
         if (!match) {
@@ -54,11 +58,13 @@ export const loginUsuario = async (req, res) => {
         }
 
         // Lógica para verificar contraseña temporal (solo para conductores)
-        if (userData.TipoUsuario === 'conductor' && userData.ContrasenaTemporal) {
+        if (userData.TipoUsuario === 'Conductor' && userData.ContrasenaTemporal) {
+            
             return res.status(200).json({
                 message: 'Contraseña temporal, es necesario cambiar la contraseña.',
                 temporal: true, // Indicar al cliente que la contraseña es temporal
-                tipoUsuario: userData.TipoUsuario // Devolver el tipo de usuario
+                tipoUsuario: userData.TipoUsuario, // Devolver el tipo de usuario
+                userId: userData.UsuarioID
             });
         }
 
@@ -66,7 +72,8 @@ export const loginUsuario = async (req, res) => {
         return res.status(200).json({
             message: 'Inicio de sesión exitoso.',
             temporal: false, // La contraseña no es temporal
-            tipoUsuario: userData.TipoUsuario // Devolver el tipo de usuario
+            tipoUsuario: userData.TipoUsuario, // Devolver el tipo de usuario
+            userId: userData.UsuarioID // Devolver el tipo de usuario
         });
         
     } catch (error) {

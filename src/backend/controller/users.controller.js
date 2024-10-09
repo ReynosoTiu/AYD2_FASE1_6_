@@ -1,6 +1,14 @@
 import { getConnection, sql } from "../database/connection.js";
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
+
+// Definir __dirname manualmente para módulos ES6
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 
 export const registerUsuario = async (req, res) => {
@@ -85,52 +93,85 @@ export const registerUsuario = async (req, res) => {
     }
 };
 export const getInfoConductor = async (req, res) => {
-    const { viajeId } = req.params;
+    const { id } = req.params;  // Recibir el ID desde los parámetros de la URL
 
     try {
         const pool = await getConnection();
-
-        const result = await pool.request()
-            .input('viajeId', sql.Int, viajeId)
+  //      (SELECT COUNT(*) FROM Viajes V WHERE V.ConductorID = C.ConductorID) AS TotalViajes,                   
+    //    (SELECT STRING_AGG(Comentario, '; ') FROM Comentarios WHERE ConductorID = C.ConductorID) AS Comentarios
+  
+        // (SELECT AVG(Calificacion) FROM Calificaciones WHERE ConductorID = C.ConductorID) AS PromedioCalificacion,
+        // Realizar la consulta para obtener los detalles completos del conductor por ID
+        const conductorDetalles = await pool.request()
+            .input("ConductorID", sql.Int, id)
             .query(`
-                SELECT c.Nombre AS nombreConductor, c.NumeroPlaca, v.Fotografia AS fotoAutomovil, v.Marca AS marcaAutomovil 
-                FROM Conductores c 
-                JOIN Viajes v ON v.ConductorID = c.ConductorID 
-                WHERE v.ViajeID = @viajeId
+                SELECT 
+                    U.NombreCompleto,                   
+                    C.NumeroPlaca,
+                    C.MarcaVehiculo,
+                    C.AnioVehiculo,
+                    C.FotografiaVehiculo                   
+                    FROM Conductores C
+                INNER JOIN Usuarios U ON C.ConductorID = U.UsuarioID
+                WHERE C.ConductorID = @ConductorID;
             `);
 
-        if (result.recordset.length === 0) {
-            return res.status(404).json({ error: 'Conductor no encontrado' });
+        if (!conductorDetalles.recordset[0]) {
+            return res.status(404).json({ message: 'Conductor no encontrado.' });
         }
 
-        res.status(200).json(result.recordset[0]);
+        // Extraer datos del conductor
+        const conductor = conductorDetalles.recordset[0];
+
+        // Definir rutas de los archivos
+        const uploadDir = path.join(__dirname, '../uploads');       
+        const vehicleImagePath = path.join(uploadDir, 'vehicleImages', conductor.FotografiaVehiculo);
+
+        // Leer el archivo CV y convertirlo a base64
+       
+        // Leer la imagen del vehículo y convertirla a base64
+        const vehicleImageBase64 = fs.existsSync(vehicleImagePath) ? fs.readFileSync(vehicleImagePath, 'base64') : null;
+
+        // Retornar los detalles completos del conductor, incluyendo archivos en base64
+        res.status(200).json({
+            ...conductor,
+            FotografiaVehiculo: vehicleImageBase64
+        });
+
     } catch (error) {
-        console.error('Error al obtener información del conductor:', error);
-        res.status(500).json({ error: 'Error al obtener información del conductor' });
+        console.error('Error al obtener los detalles del conductor:', error);
+        res.status(500).json({ error: 'Error al obtener los detalles del conductor' });
     }
 };
 
 export const reportarProblema = async (req, res) => {
-    const { tipoProblema, nombreConductor, numeroPlaca, descripcion, fechaProblema } = req.body;
+    const { viajeId, usuarioId,conductorId,categoria,descripcion  } = req.body;
 
-    if (!descripcion || (tipoProblema === 'conductor' && (!nombreConductor || !numeroPlaca))) {
+    if (!viajeId || !usuarioId||!conductorId||!categoria||!descripcion) {
         return res.status(400).json({ error: 'Faltan datos requeridos' });
     }
 
     try {
         const pool = await getConnection();
 
+        // Iniciar transacción
+       // await pool.request().query('BEGIN TRANSACTION');
+
+        // 1. Insertar la cancelación en la tabla Cancelaciones
+        const rolCancelacion =  1 ;  // 1 para Usuario, 2 para Conductor
         await pool.request()
-            .input('tipoProblema', sql.VarChar, tipoProblema)
-            .input('nombreConductor', sql.VarChar, nombreConductor || null)
-            .input('numeroPlaca', sql.VarChar, numeroPlaca || null)
-            .input('descripcion', sql.VarChar, descripcion)
-            .input('fechaProblema', sql.Date, fechaProblema || null)
+            .input('viajeId', sql.Int, viajeId)
+            .input('usuarioId', sql.Int, usuarioId || null)  // Puede ser null si lo cancela el conductor
+            .input('conductorId', sql.Int, conductorId || null)  // Puede ser null si lo cancela el usuario
+            .input('rolCancelacion', sql.Int, rolCancelacion)
+            .input('categorias', sql.VarChar, categoria)
+            .input('descripciones', sql.VarChar, descripcion)
             .query(`
-                INSERT INTO Reportes (TipoProblema, NombreConductor, NumeroPlaca, Descripcion, FechaProblema) 
-                VALUES (@tipoProblema, @nombreConductor, @numeroPlaca, @descripcion, @fechaProblema)
+                INSERT INTO ReportesProblemas (ConductorID, UsuarioID, ViajeID,  RolCancelacion, Categoria,Descripcion)
+                VALUES (@conductorId, @usuarioId, @viajeId,  @rolCancelacion, @categorias, @descripciones)
             `);
 
+        
         res.status(201).json({ message: 'Problema reportado exitosamente' });
     } catch (error) {
         console.error('Error al reportar problema:', error);
@@ -139,7 +180,7 @@ export const reportarProblema = async (req, res) => {
 };
 
 export const cancelarViaje = async (req, res) => {
-    const { viajeId, motivoCancelacion, justificacion, quienCancela, usuarioId, conductorId } = req.body;
+    const { viajeId, motivoCancelacion, justificacion,  usuarioId, conductorId } = req.body;
 
     // Validar si falta el motivo de cancelación
     if (!motivoCancelacion) {
@@ -158,7 +199,7 @@ export const cancelarViaje = async (req, res) => {
        // await pool.request().query('BEGIN TRANSACTION');
 
         // 1. Insertar la cancelación en la tabla Cancelaciones
-        const rolCancelacion = quienCancela === 'Usuario' ? 1 : 2;  // 1 para Usuario, 2 para Conductor
+        const rolCancelacion =  1 ;  // 1 para Usuario, 2 para Conductor
         await pool.request()
             .input('viajeId', sql.Int, viajeId)
             .input('usuarioId', sql.Int, usuarioId || null)  // Puede ser null si lo cancela el conductor

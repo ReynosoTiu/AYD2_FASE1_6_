@@ -10,7 +10,7 @@ import {
 const router = Router();
 
 router.post("/users/register", registerUsuario);
-router.post("/users/driver_information", getInfoConductor);
+router.get("/users/driver_information/:id", getInfoConductor);
 router.post("/users/report_problem", reportarProblema);
 router.post("/users/cancel_trip", cancelarViaje);
 router.post("/users/request_trip", pedirViaje);

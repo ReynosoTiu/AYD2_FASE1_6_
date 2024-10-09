@@ -233,10 +233,10 @@ export const obtenerConductoresBasicos = async (req, res) => {
                     U.NombreCompleto,
                     U.Telefono,
                     U.CorreoElectronico,
-                    C.NumeroPlaca,
-                    CASE WHEN C.Estatus = 'Activo' THEN 'Activo' ELSE 'Inactivo' END AS EstadoCuenta
+                    C.NumeroPlaca                   
                 FROM Conductores C
-                INNER JOIN Usuarios U ON C.ConductorID = U.UsuarioID;
+                INNER JOIN Usuarios U ON C.ConductorID = U.UsuarioID
+                WHERE C.Estatus = 'Activo';
             `);
 
         if (conductores.recordset.length === 0) {
@@ -256,7 +256,10 @@ export const obtenerConductorDetallesPorID = async (req, res) => {
 
     try {
         const pool = await getConnection();
-
+  //      (SELECT COUNT(*) FROM Viajes V WHERE V.ConductorID = C.ConductorID) AS TotalViajes,                   
+    //    (SELECT STRING_AGG(Comentario, '; ') FROM Comentarios WHERE ConductorID = C.ConductorID) AS Comentarios
+  
+        // (SELECT AVG(Calificacion) FROM Calificaciones WHERE ConductorID = C.ConductorID) AS PromedioCalificacion,
         // Realizar la consulta para obtener los detalles completos del conductor por ID
         const conductorDetalles = await pool.request()
             .input("ConductorID", sql.Int, id)
@@ -277,11 +280,8 @@ export const obtenerConductorDetallesPorID = async (req, res) => {
                     C.Fotografia,
                     C.FotografiaVehiculo,
                     C.CV,
-                    C.Estatus AS EstadoCuenta,
-                    (SELECT COUNT(*) FROM Viajes V WHERE V.ConductorID = C.ConductorID) AS TotalViajes,
-                    (SELECT AVG(Calificacion) FROM Calificaciones WHERE ConductorID = C.ConductorID) AS PromedioCalificacion,
-                    (SELECT STRING_AGG(Comentario, '; ') FROM Comentarios WHERE ConductorID = C.ConductorID) AS Comentarios
-                FROM Conductores C
+                    C.Estatus AS EstadoCuenta
+                    FROM Conductores C
                 INNER JOIN Usuarios U ON C.ConductorID = U.UsuarioID
                 WHERE C.ConductorID = @ConductorID;
             `);
@@ -408,8 +408,8 @@ export const obtenerDetalleUsuario = async (req, res) => {
 
 
 export const darDeBajaUsuario = async (req, res) => {
-    const { id } = req.params; // ID del usuario a dar de baja
-    const { motivo, asistenteNombre } = req.body; // Motivo de la baja y nombre del asistente
+  
+    const { id,motivo, asistenteNombre } = req.body; // Motivo de la baja y nombre del asistente
 
     try {
         const pool = await getConnection();

@@ -224,43 +224,65 @@ export const cancelarViaje = async (req, res) => {
 };
 
 export const reportarProblema = async (req, res) => {
-    const { UsuarioID, ViajeID, Categoria, Descripcion, EvidenciaBase64 } = req.body;
+    const { viajeId, usuarioId,conductorId,categoria,descripcion, evidencia } = req.body;
 
+    if (!viajeId || !usuarioId||!conductorId||!categoria||!descripcion) {
+        return res.status(400).json({ error: 'Faltan datos requeridos' });
+    }
     try {
         const pool = await getConnection();
 
-        // Guardar el reporte del problema
-        const reportId = await pool.request()
-            .input("UsuarioID", sql.Int, UsuarioID)
-            .input("ViajeID", sql.Int, ViajeID)
-            .input("Categoria", sql.VarChar, Categoria)
-            .input("Descripcion", sql.VarChar, Descripcion)
-            .query("INSERT INTO ReportesProblemas (UsuarioID, ViajeID, Categoria, Descripcion) OUTPUT INSERTED.ReporteID VALUES (@UsuarioID, @ViajeID, @Categoria, @Descripcion)");
+        // Iniciar transacción
+       // await pool.request().query('BEGIN TRANSACTION');
 
-        const ReporteID = reportId.recordset[0].ReporteID;
-
-        // Guardar el archivo PDF en base64
-        if (EvidenciaBase64) {
-            const base64Data = EvidenciaBase64.replace(/^data:application\/pdf;base64,/, '');
-            const pdfFilename = `${uuidv4()}_evidencia.pdf`;
-            const pdfFilePath = path.join(__dirname, '../uploads', pdfFilename);
-            
-            // Asegurarse de que la carpeta exista
-            if (!fs.existsSync(path.join(__dirname, '../uploads'))) {
-                fs.mkdirSync(path.join(__dirname, '../uploads'));
-            }
-
-            // Escribir el archivo PDF
-            fs.writeFileSync(pdfFilePath, base64Data, 'base64');
-
-            // Actualizar el reporte con la ruta del archivo
-            await pool.request()
-                .input("ReporteID", sql.Int, ReporteID)
-                .input("Evidencia", sql.VarChar, pdfFilename)
-                .query("UPDATE ReportesProblemas SET Evidencia = @Evidencia WHERE ReporteID = @ReporteID");
-        }
-
-        res.status(200).json({ message: 'Problema reportado exitosamente' });
+        // 1. Insertar la cancelación en la tabla Cancelaciones
+       if(!evidencia){
+        const rolCancelacion =  2 ;  // 1 para Usuario, 2 para Conductor
+        await pool.request()
+            .input('viajeId', sql.Int, viajeId)
+            .input('usuarioId', sql.Int, usuarioId || null)  // Puede ser null si lo cancela el conductor
+            .input('conductorId', sql.Int, conductorId || null)  // Puede ser null si lo cancela el usuario
+            .input('rolCancelacion', sql.Int, rolCancelacion)
+            .input('categorias', sql.VarChar, categoria)
+            .input('descripciones', sql.VarChar, descripcion)
+            .query(`
+                INSERT INTO ReportesProblemas (ConductorID, UsuarioID, ViajeID,  RolCancelacion, Categoria,Descripcion)
+                VALUES (@conductorId, @usuarioId, @viajeId,  @rolCancelacion, @categorias, @descripciones)
+            `);        
+        res.status(201).json({ message: 'Problema reportado exitosamente' });
+       }else{
+        const rolCancelacion =  2 ;  // 1 para Usuario, 2 para Conductor
+         // Crear la carpeta 'uploads' si no existe
+         const uploadDir = path.join(__dirname, '../uploads');
+         if (!fs.existsSync(uploadDir)) {
+             fs.mkdirSync(uploadDir);
+         }
+ 
+         //
+         // Guardar las imágenes (conductor y vehículo)
+         const base64ImageData = evidencia.replace(/^data:image\/\w+;base64,/, '');
+         const imageFilename = `${uuidv4()}_reporteProblema.png`;
+         const imageFilePath = path.join(uploadDir, 'reporteProblemas', imageFilename);
+         if (!fs.existsSync(path.join(uploadDir, 'reporteProblemas'))) {
+             fs.mkdirSync(path.join(uploadDir, 'reporteProblemas'));
+         }
+         fs.writeFileSync(imageFilePath, base64ImageData, 'base64');
+         
+        await pool.request()
+            .input('viajeId', sql.Int, viajeId)
+            .input('usuarioId', sql.Int, usuarioId || null)  // Puede ser null si lo cancela el conductor
+            .input('conductorId', sql.Int, conductorId || null)  // Puede ser null si lo cancela el usuario
+            .input('rolCancelacion', sql.Int, rolCancelacion)
+            .input('categorias', sql.VarChar, categoria)
+            .input('descripciones', sql.VarChar, descripcion)
+            .input('evidencia', sql.VarChar, imageFilename)
+            .query(`
+                INSERT INTO ReportesProblemas (ConductorID, UsuarioID, ViajeID,  RolCancelacion, Categoria,Descripcion,Evidencia)
+                VALUES (@conductorId, @usuarioId, @viajeId,  @rolCancelacion, @categorias, @descripciones,@evidencia)
+            `);        
+        res.status(201).json({ message: 'Problema reportado exitosamente' });
+      
+       }
     } catch (error) {
         console.error('Error al reportar el problema:', error);
         res.status(500).json({ error: 'Error al reportar el problema' });
@@ -276,7 +298,7 @@ export const verInformacionUsuario = async (req, res) => {
 
         const usuarioInfo = await pool.request()
             .input("UsuarioID", sql.Int, id)
-            .query("SELECT NombreCompleto, Calificacion, NumeroViajes, Comentarios FROM InformacionUsuarios WHERE UsuarioID = @UsuarioID");
+            .query("SELECT NombreCompleto,Telefono,CorreoElectronico FROM Usuarios WHERE UsuarioID = @UsuarioID");
 
         if (!usuarioInfo.recordset[0]) {
             return res.status(404).json({ error: 'Información del usuario no encontrada' });
@@ -304,7 +326,7 @@ export const finalizarViaje = async (req, res) => {
             .input("ViajeID", sql.Int, ViajeID)
             .query("SELECT Estado FROM Viajes WHERE ViajeID = @ViajeID");
 
-        if (!viaje.recordset.length || viaje.recordset[0].Estado !== 'En curso') {
+        if (!viaje.recordset.length || viaje.recordset[0].Estado !== 'Aceptado') {
             return res.status(400).json({ error: 'El viaje no puede ser finalizado' });
         }
 

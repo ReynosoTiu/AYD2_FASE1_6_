@@ -4,13 +4,14 @@ CREATE TABLE Usuarios (
     NombreCompleto NVARCHAR(255) NOT NULL,
     Telefono NVARCHAR(20),
     Edad INT,
-    DPI NVARCHAR(15) UNIQUE NOT NULL,
+    DPI NVARCHAR(15),
     CorreoElectronico NVARCHAR(255) UNIQUE NOT NULL,
     Contrasena NVARCHAR(255) NOT NULL,  -- Almacena contraseñas encriptadas
     Direccion NVARCHAR(255),
     Genero NVARCHAR(10),
     EstadoCivil NVARCHAR(50),
     FechaRegistro DATETIME DEFAULT GETDATE(),
+    FechaNacimiento DATETIME DEFAULT GETDATE(),
     TipoUsuario NVARCHAR(50) NOT NULL,  -- 'Conductor', 'Asistente', 'Administrador'
     CodigoEmpleado NVARCHAR(20),  -- Para conductores y asistentes
     ContrasenaTemporal BIT DEFAULT 1,  -- Indicador de contraseña temporal
@@ -63,6 +64,7 @@ CREATE TABLE ReportesProblemas (
     Categoria NVARCHAR(50),
     Descripcion NVARCHAR(255),
     FechaReporte DATETIME DEFAULT GETDATE(),
+    FechaProblema DATETIME DEFAULT GETDATE(),
     Evidencia NVARCHAR(MAX)  -- Ruta a archivos adjuntos
 );
 
