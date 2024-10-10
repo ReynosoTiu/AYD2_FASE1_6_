@@ -130,3 +130,46 @@ export const cambiarContrasena = async (req, res) => {
         res.status(500).json({ error: 'Error al cambiar la contraseña' });
     }
 };
+
+export const listaViajes = async (req, res) => {
+    const { ConductorID, ViajeID } = req.body;
+
+    try {
+        const pool = await getConnection();
+
+        // Verificar si el viaje ya fue aceptado
+        const viajes = await pool.request()
+            .input("ViajeID", sql.Int, ViajeID)
+            .query("SELECT * FROM Viajes;");
+
+
+        if (!viajes.recordset[0]) {
+            return res.status(404).json({ error: 'No se encontraron viajes.' });
+        }
+
+        res.status(200).json(viajes.recordset[0]);
+
+    } catch (error) {
+        res.status(500).json({ error: 'Error cargar listado de viajes' });
+    }
+};
+
+export const verInformacionViaje = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const pool = await getConnection();
+
+        const usuarioInfo = await pool.request()
+            .input("id", sql.Int, id)
+            .query("SELECT * FROM Viajes WHERE ViajeID = @id");
+
+        if (!usuarioInfo.recordset[0]) {
+            return res.status(404).json({ error: 'Información del viaje no encontrada' });
+        }
+
+        res.status(200).json(usuarioInfo.recordset[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener información del viaje' });
+    }
+};
