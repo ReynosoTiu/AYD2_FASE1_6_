@@ -381,3 +381,58 @@ export const cambiarContrasena = async (req, res) => {
     }
 };
 
+
+export const listaViajes = async (req, res) => {
+    const { ConductorID, ViajeID } = req.body;
+
+    try {
+        const pool = await getConnection();
+
+        // Verificar si el viaje ya fue aceptado
+        const viajes = await pool.request()
+            .input("ViajeID", sql.Int, ViajeID)
+            .query("SELECT * FROM Viajes WHERE Estado = 'Pendiente'");
+
+
+        if (!viajes.recordset[0]) {
+            return res.status(404).json({ error: 'No se encontraron viajes.' });
+        }
+
+        res.status(200).json(viajes.recordset[0]);
+
+    } catch (error) {
+        res.status(500).json({ error: 'Error cargar listado de viajes' });
+    }
+};
+
+
+export const viajeActivo = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const pool = await getConnection();
+        const detalleViajeActivo = await pool.request()
+            .input("id", sql.Int, id)
+            .query(`
+                SELECT v.ViajeID as idViaje, v.Tarifa as Tarifa, v.ZonaInicio as puntoPartida, v.ZonaFin as puntoLlegada, v.UsuarioID as idUsuario,
+                u.NombreCompleto as nombreUsuario FROM Viajes as v
+                inner join Usuarios as u
+                ON  v.UsuarioID = u.UsuarioID 
+                WHERE v.ConductorID = @id AND v.Estado = 'Aceptado';
+            `);
+
+        if (!detalleViajeActivo.recordset[0]) {
+            return res.status(404).json({ message: 'No tienes viajes activos.' });
+        }
+
+        const viaje = detalleViajeActivo.recordset[0];
+
+        res.status(200).json({
+            ...viaje,
+        });
+
+    } catch (error) {
+        console.error('Error al obtener los viajes activos', error);
+        res.status(500).json({ error: 'Error al obtener los viajes activos' });
+    }
+};

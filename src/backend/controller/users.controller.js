@@ -282,3 +282,38 @@ export const pedirViaje = async (req, res) => {
         res.status(500).json({ error: 'Error al solicitar viaje' });
     }
 };
+
+
+export const viajeActivo = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const pool = await getConnection();
+        const detalleViajeActivo = await pool.request()
+            .input("id", sql.Int, id)
+            .query(`
+                SELECT v.ViajeID as idViaje, v.Tarifa as Tarifa, v.ZonaInicio as puntoPartida, v.ZonaFin as puntoLlegada, v.ConductorID as idConductor,
+                u.NombreCompleto as nombreUsuario, v.FechaHoraInicio as fecha, c.NumeroPlaca as placas
+                FROM Viajes as v
+                inner join Usuarios as u
+                ON  v.ConductorID = u.UsuarioID 
+                inner join Conductores as c
+                ON c.ConductorID = v.ConductorID
+                WHERE v.UsuarioID = @id AND v.Estado = 'Aceptado';
+            `);
+
+        if (!detalleViajeActivo.recordset[0]) {
+            return res.status(404).json({ message: 'No tienes viajes activos.' });
+        }
+
+        const viaje = detalleViajeActivo.recordset[0];
+
+        res.status(200).json({
+            ...viaje,
+        });
+
+    } catch (error) {
+        console.error('Error al obtener los viajes activos', error);
+        res.status(500).json({ error: 'Error al obtener los viajes activos' });
+    }
+};

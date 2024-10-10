@@ -4,7 +4,8 @@ import {
   getInfoConductor, 
   pedirViaje, 
   registerUsuario, 
-  reportarProblema
+  reportarProblema,
+  viajeActivo
 } from "../controller/users.controller.js";
 
 const router = Router();
@@ -14,5 +15,6 @@ router.get("/users/driver_information/:id", getInfoConductor);
 router.post("/users/report_problem", reportarProblema);
 router.post("/users/cancel_trip", cancelarViaje);
 router.post("/users/request_trip", pedirViaje);
+router.get("/users/active_trip/:id", viajeActivo);
 
 export default router;

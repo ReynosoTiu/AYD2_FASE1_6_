@@ -497,8 +497,8 @@ export const aprobarRechazarConductor = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error al obtener los detalles del conductor:', error);
-        res.status(500).json({ error: 'Error al obtener los detalles del conductor' });
+        console.error('Error al Aprobar o Rechazar conductor:', error);
+        res.status(500).json({ error: 'Error al Aprobar o Rechazar conductor' });
     }
 };
 
