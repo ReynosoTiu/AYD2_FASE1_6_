@@ -1,6 +1,6 @@
-FROM node:20.16.0
+FROM node:20.16.0-alpine
 
-RUN apt-get update && apt-get install -y build-essential
+RUN apk update && apk add --no-cache build-base
 
 WORKDIR /app
 
