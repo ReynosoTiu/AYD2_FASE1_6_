@@ -110,64 +110,56 @@ Funcionalidades Clave:
 - Dar de Baja Asistentes: Desactivación de cuentas de asistentes y reasignación de tareas.
 
 ### Lista de Requerimientos Funcionales Generales
+#### Funcionales
+1. Funciones de usuarios
+* Usuario
+  * Registrar
+  * Iniciar sesión
+  * Solicitar viaje
+  * Cancelar viaje
+  * Ver información del conductor
+  * Reportar
+  * Calificar conductor
+  * Actualizar datos
+  * Seleccionar metodo de pago
+* Conductor
+  * Registrar
+  * Iniciar sesión
+  * Aceptar viaje
+  * Cancelar viaje
+  * Ver información del usuario
+  * Reportar
+  * Calificar usuario
+  * Marcar como finalizado el viaje
+* Asistente
+  * Iniciar sesión
+  * Aceptar solicitud de empleo
+  * Ver información de un usuario
+  * Ver información de un conductor
+  * Dar de baja a un usuario
+  * Dar de baja a un conductor
+  * Ver información de los vehiculos
+  * Ver comentarios
+  * Ver calificaciones
+  * Aprobar cambios de información
+* Administrador
+  * Iniciar sesión
+  * Generar reportes
+  * Ver estadísticas de registros
+  * Registrar asistentes
+  * Dar de baja a un asistente
+2. Seguridad
+  * Validacion de registros por medio de correo
+  * Generacion de contraseñas temporales
+  * Prevención de accesos no autorizados
 
-1. Registro de Usuario
-
-- Campos obligatorios: Nombre completo, fecha de nacimiento, género, correo, fotografía del DPI, número de celular, contraseña.
-- Métodos de pago: Tarjeta de crédito (opcional) y efectivo al finalizar el viaje.
-
-2. Registro de Conductor
-
-- Campos obligatorios: Nombre completo, número de teléfono, edad, número de DPI, correo electrónico, papelería completa, fotografía del vehículo, información del vehículo, dirección de domicilio.
-- Generación de código de empleado y contraseña temporal.
-
-3. Registro de Asistente
-
-- Campos obligatorios: Nombre completo, número de teléfono, edad, número de DPI, correo electrónico, papelería completa, fotografía, dirección de domicilio.
-- Generación de código de empleado y contraseña temporal.
-
-4. Inicio de Sesión:
-
-- Los usuarios, conductores, asistentes y administradores deben poder iniciar sesión utilizando sus credenciales respectivas.
-- Proceso de recuperación de contraseña para usuarios/conductores/asistentes.
-- Proceso de validación de administrador con archivo de contraseña encriptada.
-
-5. Gestión de Viajes:
-
-- Solicitar, aceptar, cancelar y finalizar viajes.
-- Calificar conductores y usuarios después del viaje.
-- Reportar problemas durante el viaje.
-
-6. Modificación de Información:
-
-- Los usuarios y conductores deben poder actualizar su información personal y datos de pago.
-- Los asistentes deben revisar y aprobar cambios en la información de los conductores.
-
-7. Gestión de Usuarios y Conductores:
-
-- Aceptar o rechazar solicitudes de empleo de conductores.
-- Dar de baja a usuarios y conductores si es necesario.
-- Ver detalles y estadísticas de usuarios y conductores.
-
-8. Generación de Reportes:
-
-- Reportes sobre el funcionamiento de la plataforma, calificaciones, estadísticas de uso, y ganancias.
-- Reportes específicos de vehículos y de desempeño de asistentes.
-
-9. Gestión de Ofertas y Descuentos:
-
-- Crear y aplicar ofertas especiales para los usuarios.
-
-10. Resumen de Ganancias:
-
-- Visualizar ganancias diarias y acumuladas para los conductores.
-
-11. Seguridad y Privacidad
-
-- Configuración y control de permisos para diferentes roles dentro de la plataforma.
-- Encriptación de datos sensibles.
-- Bloqueo de cuenta tras cinco intentos fallidos de inicio de sesión.
-- Acceso a archivos PDF de CV de conductores por administradores y asistentes.
+#### No funcionales
+1. Escalabilidad: El sistema debe ser capaz de manejar el aumento de usuarios que hacen uso de la aplicación; así como sus diferentes transacciones (solicitudes de viaje, pagos, administración de usuarios, etc.)
+2. Disponibilidad: El sistema debe estar disponible en todo momento devido a que los usuarios tienen que tener acceso al sistema en el momento que lo necesite.
+3. Seguridad: Cifrar los datos sensibles
+4. Rendimiento: El tiempo de respuesta debe ser rápido para que los usuarios de la aplicacion tengan una buena experiencia
+5. Mantenimiento: Debe seguir buenas practicas de desarrollo como lo es un buen manejo del control de versiones, una buena normalización de base de datos, etc.
+6. Despliegue: Este debe ser desplegado en la nube, utilizando docker para garantizar la consistencia y portabilidad del proyecto desarrollado en un entorno productivo.
 
 ## Diagramas de Casos de Uso Expandidos
 
@@ -213,6 +205,10 @@ Funcionalidades Clave:
 ## Diagrama de Despliegue
 
 ![Diagrama de despliegue de la arquitectura](/imagenes/diagramaDespliegue.png)
+
+## Diagrama de implementacion
+
+![Diagrama de implementacion de la arquitectura](/diagramas/implementacion.png)
 
 **Patrones de diseño propuestos**
 
@@ -273,6 +269,39 @@ Funcionalidades Clave:
 **Patrones de diseño propuestos**
 
 # Estilo arquitectonico propuesto (En capas)
+1. Capa de presentación
+
+Esta capa interactúa directamente con los usuarios, conductores, asistentes y administradores. Es responsable de la interfaz de usuario y se encarga de recibir las solicitudes de los usuarios y mostrar la información de respuesta proporcionada por las capas inferiores.
+
+2. Capa de lógica de negocios
+
+Contiene las reglas de negocio y la lógica que define cómo se manejan las operaciones del sistema. Esta capa gestiona las interacciones entre usuarios, conductores, viajes, pagos, y más.
+
+Se ocupa de las funcionalidades como el registro, la autenticación de usuarios, la gestión de viajes, la asignación de conductores, la calificación de usuarios/conductores, y la gestión de pagos. Aquí se puede implementar la validación de datos, los cálculos relacionados con tarifas de viajes, asignación de rutas, entre otras.
+
+2. Capa de acceso a datos
+
+Esta capa es responsable de la comunicación con la base de datos. Aquí se realizan las operaciones CRUD sobre las bases de datos de la aplicación. Esta capa se conecta a la base de datos para almacenar y recuperar información de usuarios, conductores, viajes, pagos y reportes.
+
+3. Capa de base de datos
+
+Contiene la base de datos donde se almacena toda la información de la aplicación. Esta capa no interactúa directamente con los usuarios, solo a través de la capa de acceso a datos.
+
+4. Capa de servicios
+
+A veces, se agrega una capa intermedia para gestionar la lógica que conecta las aplicaciones internas con servicios externos. Esta capa sería responsable de la integración con servicios externos, como sistemas de pago, notificaciones por SMS o correo, servicios de geolocalización, entre otros.
+
+### ¿Por qué elegir la arquitectura por capas?
+1. Claridad: Cada capa tiene una responsabilidad clara, lo que hace que el sistema sea más fácil de entender, mantener y escalar. El código se organiza de manera lógica, lo que facilita futuras actualizaciones.
+
+2. Separación de funciones: Los cambios en una capa no afectan directamente a las otras capas, lo que reduce el riesgo de errores y hace que el desarrollo sea más eficiente.
+
+3. Reutilización de código: Las reglas de negocio y la lógica de acceso a datos se pueden reutilizar en diferentes partes de la aplicación.
+
+4. Facilidad de testing: Cada capa puede ser probada por separado, lo que facilita la identificación de errores y la mejora de la calidad del software, por lo que esto aumenta las probabilidades de una aplicación segura.
+
+5. Escalabilidad: Aunque una arquitectura por capas no es tan escalable como los microservicios, es posible escalar de manera eficiente al dividir las capas de manera horizontal. Por ejemplo, se podría escalar la capa de lógica de negocio si la demanda de procesamiento de viajes aumenta.
+
 
 ![Estilo en capas](/diagramas/estiloarqui.png)
 
