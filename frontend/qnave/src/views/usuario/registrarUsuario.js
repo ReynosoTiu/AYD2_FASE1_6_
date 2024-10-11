@@ -88,27 +88,37 @@ const RegistroUsuario = () => {
       });
       return;
     }
+  
+    const datosAEnviar = {
+      NombreCompleto: formData.nombreCompleto,
+      FechaNacimiento: formData.fechaNacimiento,
+      Genero: formData.genero,
+      Correo: formData.correo,
+      NumeroCelular: formData.telefono,
+      Contrasena: formData.password,
+      ConfirmarContrasena: formData.confirmarPassword
+    };
 
+    console.log(datosAEnviar);
+  
     try {
-      const response = await fetch(
-        "http://api.ejemplo.com/registro-usuario",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
+      const response = await fetch("http://localhost:8080/api/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(datosAEnviar),
+      });
+  
       if (response.ok) {
         setAlerta({
           mensaje: "Datos registrados correctamente, revise su e-mail",
           tipo: "success",
         });
       } else {
+        const errorData = await response.json();
         setAlerta({
-          mensaje: "Ocurrió un error al tratar de registrar sus datos",
+          mensaje: errorData.error || "Ocurrió un error al tratar de registrar sus datos",
           tipo: "danger",
         });
       }
@@ -118,10 +128,11 @@ const RegistroUsuario = () => {
         tipo: "danger",
       });
     }
+  
     window.scrollTo(0, 0);
-    setTimeout(() => setAlerta({ mensaje: "", tipo: "" }), 5000); // Ocultar la alerta después de 5 segundos
+    setTimeout(() => setAlerta({ mensaje: "", tipo: "" }), 5000);
   };
-
+  
   return (
     <Container className="mt-5">
       <Row className="justify-content-md-center">
@@ -181,8 +192,8 @@ const RegistroUsuario = () => {
                   isInvalid={!!errores.genero}
                 >
                   <option value="">Elige un género</option>
-                  <option value="masculino">Masculino</option>
-                  <option value="femenino">Femenino</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Femenino">Femenino</option>
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">
                   {errores.genero}

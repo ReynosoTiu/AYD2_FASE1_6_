@@ -11,12 +11,16 @@ import VisorUsuarios from "./views/asistente/visorUsuarios";
 import DetalleUsuario from "./views/asistente/DetalleUsuario";
 import VisorSolicitudEmpleos from "./views/asistente/visorSolicitudEmpleos";
 import DetalleSolicitud from "./views/asistente/DetalleSolicitud";
+<<<<<<< HEAD
 import RegistroUsuario from "./views/usuario/registrarUsuario";
 import HomeUsuario from "./views/usuario/homeUsuario";
 import PedirViaje from "./views/usuario/pedirViaje";
 import VerConductor from "./views/usuario/verConductor";
 import ReportarProblema from "./views/usuario/reportarProblema";
 import CancelarViaje from "./views/usuario/cancelarViaje";
+=======
+import CambiarContrasenia from "./views/Login/NuevaContrasenia";
+>>>>>>> 2bfd33332488fc4a0c8a10035e4a9600098a50c8
 
 function LayoutConductor() {
   return <HeaderConductor></HeaderConductor>;
@@ -37,11 +41,15 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />}></Route>
         <Route
+          path="/cambioContrasenia/:userId"
+          element={<CambiarContrasenia />}
+        ></Route>
+        <Route
           path="/registro-conductor"
           element={<RegistrarConductor />}
         ></Route>
         <Route element={<LayoutConductor />}>
-          <Route path="/" element={<HomeConductor />}></Route>
+          <Route path="/conductor" element={<HomeConductor />}></Route>
         </Route>
         <Route path="/asistente" element={<LayoutAsistente />}>
           <Route index element={<VisorConductores />} />
