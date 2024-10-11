@@ -25,7 +25,7 @@ export const loginUsuario = async (req, res) => {
         const pool = await getConnection();
         let usuario;
 
-        // Buscar al usuario normal por correo electrónico o nombre de usuario
+        // Buscar al usuario por correo electrónico, nombre de usuario o código de empleado
         if (CorreoElectronico) {
             usuario = await pool.request()
                 .input("CorreoElectronico", sql.VarChar, CorreoElectronico)
@@ -47,7 +47,8 @@ export const loginUsuario = async (req, res) => {
 
         const userData = usuario.recordset[0];
 
-        if(userData.Activo==false){
+        // Verificar si el usuario está activo
+        if (userData.Activo === false) {
             return res.status(401).json({ error: 'Usuario no Autorizado.' });
         }
 
@@ -57,9 +58,20 @@ export const loginUsuario = async (req, res) => {
             return res.status(400).json({ error: 'Contraseña incorrecta' });
         }
 
+        // Si el usuario es un conductor, verificar que esté activo en la tabla Conductores
+        if (userData.TipoUsuario === 'Conductor') {
+            const conductor = await pool.request()
+                .input("ConductorID", sql.Int, userData.UsuarioID)
+                .query("SELECT Estatus FROM Conductores WHERE ConductorID = @ConductorID;");
+
+            // Verificar si el conductor está activo
+            if (conductor.recordset[0]?.Estatus !== 'Activo') {
+                return res.status(401).json({ error: 'Conductor no activo.' });
+            }
+        }
+
         // Lógica para verificar contraseña temporal (solo para conductores)
         if (userData.TipoUsuario === 'Conductor' && userData.ContrasenaTemporal) {
-            
             return res.status(200).json({
                 message: 'Contraseña temporal, es necesario cambiar la contraseña.',
                 temporal: true, // Indicar al cliente que la contraseña es temporal
@@ -73,9 +85,9 @@ export const loginUsuario = async (req, res) => {
             message: 'Inicio de sesión exitoso.',
             temporal: false, // La contraseña no es temporal
             tipoUsuario: userData.TipoUsuario, // Devolver el tipo de usuario
-            userId: userData.UsuarioID // Devolver el tipo de usuario
+            userId: userData.UsuarioID // Devolver el ID del usuario
         });
-        
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Error al iniciar sesión' });
