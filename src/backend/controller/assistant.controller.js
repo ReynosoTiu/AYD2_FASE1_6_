@@ -462,18 +462,21 @@ export const darDeBajaUsuario = async (req, res) => {
 
 
 export const aprobarRechazarConductor = async (req, res) => {
-    const { idConductor, estado} = req.body;
+    const { idConductor, estado } = req.body;
 
-    if (!idConductor || !estado ) {
+    if (!idConductor || !estado) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
-    let status, msj = "";
+    let statusConductor, statusUsuario, msj = "";
+    
     if (estado === 1) {
-        status = "Activo";
+        statusConductor = "Activo";
+        statusUsuario = 1; // Activo en la tabla Usuarios
         msj = "activado";
     } else if (estado === 2) {
-        status = "Rechazado";
+        statusConductor = "Rechazado";
+        statusUsuario = 0; // Inactivo en la tabla Usuarios
         msj = "rechazado";
     } else {
         return res.status(400).json({ error: 'Debe ingresar un estado valido' });
@@ -481,19 +484,31 @@ export const aprobarRechazarConductor = async (req, res) => {
 
     try {
         const pool = await getConnection();
+
+        // Actualizar la tabla Conductores
         await pool.request()
             .input("ConductorID", sql.Int, idConductor)
-            .input("status", sql.VarChar, status)
+            .input("status", sql.VarChar, statusConductor)
             .query(`
                 UPDATE Conductores
                 SET
-                Estatus= @status
+                Estatus = @status
                 WHERE ConductorID = @ConductorID;
             `);
 
+        // Actualizar el campo 'Activo' en la tabla Usuarios
+        await pool.request()
+            .input("ConductorID", sql.Int, idConductor)
+            .input("statusUsuario", sql.Bit, statusUsuario)  // Bit 1 = Activo, 0 = Inactivo
+            .query(`
+                UPDATE Usuarios
+                SET
+                Activo = @statusUsuario
+                WHERE UsuarioID = @ConductorID;
+            `);
 
         res.status(200).json({
-            message: `El usuario con código ${idConductor} fué ${msj} con exito.`,
+            message: `El usuario con código ${idConductor} fue ${msj} con éxito.`,
         });
 
     } catch (error) {
@@ -501,4 +516,5 @@ export const aprobarRechazarConductor = async (req, res) => {
         res.status(500).json({ error: 'Error al Aprobar o Rechazar conductor' });
     }
 };
+
 
