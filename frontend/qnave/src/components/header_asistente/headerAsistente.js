@@ -23,9 +23,14 @@ function HeaderAsistente() {
           </button>
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav">
-            <li className="nav-item">
+              <li className="nav-item">
                 <Link className="nav-link active" to="/asistente">
-                  <strong>Ver información</strong>
+                  <strong>Conductores</strong>
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link active" to="/asistente/usuarios">
+                  <strong>Usuarios</strong>
                 </Link>
               </li>
               <li className="nav-item">

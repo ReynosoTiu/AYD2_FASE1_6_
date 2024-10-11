@@ -4,13 +4,14 @@ CREATE TABLE Usuarios (
     NombreCompleto NVARCHAR(255) NOT NULL,
     Telefono NVARCHAR(20),
     Edad INT,
-    DPI NVARCHAR(15) UNIQUE NOT NULL,
+    DPI NVARCHAR(15),
     CorreoElectronico NVARCHAR(255) UNIQUE NOT NULL,
     Contrasena NVARCHAR(255) NOT NULL,  -- Almacena contraseñas encriptadas
     Direccion NVARCHAR(255),
     Genero NVARCHAR(10),
     EstadoCivil NVARCHAR(50),
     FechaRegistro DATETIME DEFAULT GETDATE(),
+    FechaNacimiento DATETIME,
     TipoUsuario NVARCHAR(50) NOT NULL,  -- 'Conductor', 'Asistente', 'Administrador'
     CodigoEmpleado NVARCHAR(20),  -- Para conductores y asistentes
     ContrasenaTemporal BIT DEFAULT 1,  -- Indicador de contraseña temporal
@@ -26,7 +27,7 @@ CREATE TABLE Conductores (
     MarcaVehiculo NVARCHAR(50),
     AnioVehiculo INT,
     CV NVARCHAR(MAX),  -- Ruta al archivo PDF del CV
-    Estatus NVARCHAR(20) DEFAULT 'Activo',  -- 'Activo', 'Suspendido', 'Inactivo'
+    Estatus NVARCHAR(20) DEFAULT 'Inactivo',  -- 'Activo', 'Suspendido', 'Inactivo','Rechazado'
     Calificacion DECIMAL(3,2) DEFAULT 0,
     NumeroViajes INT DEFAULT 0
 );
@@ -58,9 +59,12 @@ CREATE TABLE ReportesProblemas (
     ReporteID INT IDENTITY(1,1) PRIMARY KEY,
     UsuarioID INT FOREIGN KEY REFERENCES Usuarios(UsuarioID),
     ViajeID INT FOREIGN KEY REFERENCES Viajes(ViajeID),
+    ConductorID INT FOREIGN KEY REFERENCES Conductores(ConductorID),
+    RolCancelacion INT,
     Categoria NVARCHAR(50),
     Descripcion NVARCHAR(255),
     FechaReporte DATETIME DEFAULT GETDATE(),
+    FechaProblema DATETIME DEFAULT GETDATE(),
     Evidencia NVARCHAR(MAX)  -- Ruta a archivos adjuntos
 );
 
@@ -69,7 +73,9 @@ CREATE TABLE Cancelaciones (
     CancelacionID INT IDENTITY(1,1) PRIMARY KEY,
     ConductorID INT FOREIGN KEY REFERENCES Conductores(ConductorID),
     ViajeID INT FOREIGN KEY REFERENCES Viajes(ViajeID),
+    UsuarioID INT FOREIGN KEY REFERENCES Usuarios(UsuarioID),
     Motivo NVARCHAR(255),
+    RolCancelacion INT,
     FechaCancelacion DATETIME DEFAULT GETDATE(),
     Justificacion NVARCHAR(MAX)  -- Para cuando un conductor excede el límite de cancelaciones
 );
@@ -104,3 +110,95 @@ CREATE TABLE ConfirmacionesRegistro (
     CorreoConfirmado BIT DEFAULT 0,
     FechaEnvioCorreo DATETIME DEFAULT GETDATE()
 );
+
+
+-- Tabla para registrar la baja de conductores
+CREATE TABLE BajasConductores (
+    BajaID INT IDENTITY(1,1) PRIMARY KEY,
+    ConductorID INT FOREIGN KEY REFERENCES Conductores(ConductorID),
+    Motivo NVARCHAR(255) NOT NULL,
+    FechaBaja DATETIME DEFAULT GETDATE(),
+    BajaPor NVARCHAR(255) NOT NULL  -- Nombre del asistente que dio de baja al conductor
+);
+
+
+CREATE TABLE BajasUsuarios (
+    BajaID INT IDENTITY(1,1) PRIMARY KEY,
+    UsuarioID INT FOREIGN KEY REFERENCES Usuarios(UsuarioID),
+    Motivo NVARCHAR(255) NOT NULL,
+    FechaBaja DATETIME DEFAULT GETDATE(),
+    BajaPor NVARCHAR(255) NOT NULL
+);
+CREATE TABLE Tarifas (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    punto_partida VARCHAR(50),
+    punto_destino VARCHAR(50),
+    tarifa DECIMAL(10, 2)
+);
+INSERT INTO tarifas (punto_partida, punto_destino, tarifa) VALUES 
+('Zona 1', 'Zona 2', 10.00),
+('Zona 1', 'Zona 3', 15.00),
+('Zona 1', 'Zona 4', 20.00),
+('Zona 1', 'Zona 5', 20.00),
+('Zona 1', 'Zona 6', 25.00),
+('Zona 1', 'Zona 7', 30.00),
+('Zona 1', 'Zona 8', 30.00),
+('Zona 1', 'Zona 9', 40.00),
+('Zona 1', 'Zona 10', 50.00),
+('Zona 1', 'Zona 11', 50.00),
+('Zona 1', 'Zona 12', 25.00),
+('Zona 2', 'Zona 3', 25.00),
+('Zona 2', 'Zona 4', 25.00),
+('Zona 2', 'Zona 5', 25.00),
+('Zona 2', 'Zona 6', 30.00),
+('Zona 2', 'Zona 7', 40.00),
+('Zona 2', 'Zona 8', 40.00),
+('Zona 2', 'Zona 9', 60.00),
+('Zona 2', 'Zona 10', 70.00),
+('Zona 2', 'Zona 11', 50.00),
+('Zona 2', 'Zona 12', 35.00),
+('Zona 3', 'Zona 4', 20.00),
+('Zona 3', 'Zona 5', 30.00),
+('Zona 3', 'Zona 6', 35.00),
+('Zona 3', 'Zona 7', 25.00),
+('Zona 3', 'Zona 8', 25.00),
+('Zona 3', 'Zona 9', 40.00),
+('Zona 3', 'Zona 10', 45.00),
+('Zona 3', 'Zona 11', 40.00),
+('Zona 3', 'Zona 12', 30.00),
+('Zona 4', 'Zona 5', 15.00),
+('Zona 4', 'Zona 6', 25.00),
+('Zona 4', 'Zona 7', 25.00),
+('Zona 4', 'Zona 8', 25.00),
+('Zona 4', 'Zona 9', 15.00),
+('Zona 4', 'Zona 10', 30.00),
+('Zona 4', 'Zona 11', 35.00),
+('Zona 4', 'Zona 12', 35.00),
+('Zona 5', 'Zona 6', 15.00),
+('Zona 5', 'Zona 7', 25.00),
+('Zona 5', 'Zona 8', 35.00),
+('Zona 5', 'Zona 9', 25.00),
+('Zona 5', 'Zona 10', 35.00),
+('Zona 5', 'Zona 11', 40.00),
+('Zona 5', 'Zona 12', 40.00),
+('Zona 6', 'Zona 7', 30.00),
+('Zona 6', 'Zona 8', 35.00),
+('Zona 6', 'Zona 9', 40.00),
+('Zona 6', 'Zona 10', 50.00),
+('Zona 6', 'Zona 11', 65.00),
+('Zona 6', 'Zona 12', 60.00),
+('Zona 7', 'Zona 8', 25.00),
+('Zona 7', 'Zona 9', 35.00),
+('Zona 7', 'Zona 10', 40.00),
+('Zona 7', 'Zona 11', 40.00),
+('Zona 7', 'Zona 12', 40.00),
+('Zona 8', 'Zona 9', 25.00),
+('Zona 8', 'Zona 10', 35.00),
+('Zona 8', 'Zona 11', 35.00),
+('Zona 8', 'Zona 12', 35.00),
+('Zona 9', 'Zona 10', 15.00),
+('Zona 9', 'Zona 11', 35.00),
+('Zona 9', 'Zona 12', 30.00),
+('Zona 10', 'Zona 11', 50.00),
+('Zona 10', 'Zona 12', 50.00),
+('Zona 11', 'Zona 12', 50.00);
