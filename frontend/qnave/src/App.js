@@ -8,6 +8,7 @@ import AsistenteSolicitudEmpleos from "./views/asistente/SolicitudEmpleos";
 import AsistenteVerInformacion from "./views/asistente/verInformacion";
 import Login from "./views/Login/Login";
 import RegistrarConductor from "./views/conductor/registrarConductor";
+import CambiarContrasenia from "./views/Login/NuevaContrasenia";
 
 function LayoutConductor() {
   return <HeaderConductor></HeaderConductor>;
@@ -28,11 +29,15 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />}></Route>
         <Route
+          path="/cambioContrasenia/:userId"
+          element={<CambiarContrasenia />}
+        ></Route>
+        <Route
           path="/registro-conductor"
           element={<RegistrarConductor />}
         ></Route>
         <Route element={<LayoutConductor />}>
-          <Route path="/" element={<HomeConductor />}></Route>
+          <Route path="/conductor" element={<HomeConductor />}></Route>
         </Route>
 
         <Route element={<LayoutAsistente />}>
