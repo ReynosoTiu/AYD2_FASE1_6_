@@ -1,5 +1,6 @@
 function HomeConductor() {
-  return <p>BIENVENIDO CONDUCTOR</p>;
+  const codigo = localStorage.getItem("userId");
+  return <p>BIENVENIDO CONDUCTOR con codigo: {codigo}</p>;
 }
 
 export default HomeConductor;

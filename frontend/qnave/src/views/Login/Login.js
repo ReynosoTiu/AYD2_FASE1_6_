@@ -22,12 +22,12 @@ function Login() {
     e.preventDefault();
 
     const loginData = {
-      nombre_usuario: nombreUsuario,
-      contrasenia: contrasenia,
+      CodigoEmpleado: nombreUsuario,
+      Contrasena: contrasenia,
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/users/login", {
+      const response = await fetch("http://localhost:8080/api/general/logIn", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,25 +35,42 @@ function Login() {
         body: JSON.stringify(loginData),
       });
 
+      const data = await response.json();
+
       if (response.status === 200) {
-        const data = await response.json();
+        // Caso de éxito (código 200)
         setMensaje(data.message);
         setTipoMensaje("success");
 
-        // Redirigir según el rol
-        localStorage.setItem("rol", data.user.role);
-        if (data.user.role === "ABOGADO") {
-          navigate("/abogado");
-        } else if (data.user.role === "ASISTENTE") {
-          navigate("/asistente");
+        // Verificar si es necesario redirigir al cambio de contraseña
+        if (data.temporal) {
+          // Redirigir al cambio de contraseña y enviar el userId
+          navigate(`/cambioContrasenia/${data.userId}`);
+        } else {
+          //--->Guardar userId en localStorage
+          localStorage.setItem("userId", data.userId);
+
+          // Redirigir según el tipo de usuario
+          if (data.tipoUsuario === "Administrador") {
+            navigate("/"); //FALTA REDIRECCIONAR LA PAGINA DEADMINISTRADOR
+          } else if (data.tipoUsuario === "Usuario") {
+            navigate("/"); //FALTA REDIRECCIONAR LA PAGINA DE USUARIO
+          } else if (data.tipoUsuario === "Conductor") {
+            navigate("/conductor");
+          } else if (data.tipoUsuario === "Asistente") {
+            navigate("/asistente");
+          }
         }
-      } else if (response.status === 403) {
-        setMensaje("El nombre de usuario no existe");
+      } else if (response.status === 400 || response.status === 404) {
+        // Manejo de errores 400 y 404
+        setMensaje(data.error);
         setTipoMensaje("danger");
       } else if (response.status === 401) {
+        // Manejo de error 401
         setMensaje("Contraseña incorrecta");
         setTipoMensaje("danger");
       } else if (response.status === 500) {
+        // Manejo de error 500
         setMensaje(
           "Error del servidor. Por favor, inténtelo de nuevo más tarde."
         );
@@ -104,7 +121,7 @@ function Login() {
                 </Form.Label>
                 <Form.Control
                   type="text"
-                  placeholder="Ingrese su nombre de usuario"
+                  placeholder="Ingrese e-mail o codigo de empleado"
                   value={nombreUsuario}
                   onChange={(e) => setNombreUsuario(e.target.value)}
                   required
@@ -139,7 +156,8 @@ function Login() {
 
               <div className="d-flex justify-content-center mb-3">
                 <Link
-                  to="/recuperar-contrasenia"
+                  //FALTA REDIRIGIR LA CONTRASEÑA A SU PAGINA CORRESPONDIENTE
+                  to="/"
                   style={{ color: "#007bff", textDecoration: "none" }}
                   onMouseEnter={(e) =>
                     (e.target.style.textDecoration = "underline")
