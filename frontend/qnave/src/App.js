@@ -42,10 +42,15 @@ function App() {
           element={<CambiarContrasenia />}
         ></Route>
         <Route
+          path="/cambioContrasenia/:userId"
+          element={<CambiarContrasenia />}
+        ></Route>
+        <Route
           path="/registro-conductor"
           element={<RegistrarConductor />}
         ></Route>
         <Route element={<LayoutConductor />}>
+          <Route path="/conductor" element={<HomeConductor />}></Route>
           <Route path="/conductor" element={<HomeConductor />}></Route>
         </Route>
         <Route path="/asistente" element={<LayoutAsistente />}>
