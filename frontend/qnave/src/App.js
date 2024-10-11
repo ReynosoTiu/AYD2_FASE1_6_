@@ -11,6 +11,7 @@ import VisorUsuarios from "./views/asistente/visorUsuarios";
 import DetalleUsuario from "./views/asistente/DetalleUsuario";
 import VisorSolicitudEmpleos from "./views/asistente/visorSolicitudEmpleos";
 import DetalleSolicitud from "./views/asistente/DetalleSolicitud";
+import CambiarContrasenia from "./views/Login/NuevaContrasenia";
 
 function LayoutConductor() {
   return <HeaderConductor></HeaderConductor>;
@@ -31,11 +32,15 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />}></Route>
         <Route
+          path="/cambioContrasenia/:userId"
+          element={<CambiarContrasenia />}
+        ></Route>
+        <Route
           path="/registro-conductor"
           element={<RegistrarConductor />}
         ></Route>
         <Route element={<LayoutConductor />}>
-          <Route path="/" element={<HomeConductor />}></Route>
+          <Route path="/conductor" element={<HomeConductor />}></Route>
         </Route>
         <Route path="/asistente" element={<LayoutAsistente />}>
           <Route index element={<VisorConductores />} />
