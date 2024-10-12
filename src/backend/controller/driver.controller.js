@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from 'url';
+import {sendPasswordMail} from "../sharedFunctions/mailer.funcion.js";
 
 // Definir __dirname manualmente para módulos ES6
 const __filename = fileURLToPath(import.meta.url);
@@ -135,7 +136,10 @@ export const registerConductor = async (req, res) => {
                 INSERT INTO Conductores (ConductorID, Fotografia, FotografiaVehiculo, NumeroPlaca, MarcaVehiculo, AnioVehiculo, CV)
                 VALUES (@ConductorID, @Fotografia, @FotografiaVehiculo, @NumeroPlaca, @MarcaVehiculo, @AnioVehiculo, @CV);
             `);
-
+        sendPasswordMail(CorreoElectronico,ContrasenaTemporal)
+        .then(() => console.log('Correo enviado exitosamente'))
+        .catch((error) => console.error('Error en el envío de correo:', error));
+        
         res.status(201).json({
             message: 'Conductor registrado con éxito',
             CodigoEmpleado,

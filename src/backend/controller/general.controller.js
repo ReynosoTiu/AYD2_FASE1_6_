@@ -144,22 +144,20 @@ export const cambiarContrasena = async (req, res) => {
 };
 
 export const listaViajes = async (req, res) => {
-    const { ConductorID, ViajeID } = req.body;
 
     try {
         const pool = await getConnection();
 
         // Verificar si el viaje ya fue aceptado
         const viajes = await pool.request()
-            .input("ViajeID", sql.Int, ViajeID)
-            .query("SELECT * FROM Viajes;");
+            .query("select * from Viajes;");
 
 
         if (!viajes.recordset[0]) {
             return res.status(404).json({ error: 'No se encontraron viajes.' });
         }
 
-        res.status(200).json(viajes.recordset[0]);
+        res.status(200).json(viajes.recordset);
 
     } catch (error) {
         res.status(500).json({ error: 'Error cargar listado de viajes' });
