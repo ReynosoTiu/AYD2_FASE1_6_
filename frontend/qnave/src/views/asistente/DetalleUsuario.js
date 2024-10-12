@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ViajesAcordeon from './viajesAcordeon';
 
 const DetalleUsuario = () => {
     const { id } = useParams();
     const [usuario, setUsuario] = useState(null);
+    const [listTrip, setListTrip] = useState([]);
     const [error, setError] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [comentario, setComentario] = useState('');
@@ -13,17 +15,39 @@ const DetalleUsuario = () => {
     useEffect(() => {
         const fetchUsuario = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/asistant/getUserById/${id}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch');
-                }
+                const response = await fetch(`http://34.173.74.193:5000/api/asistant/getUserById/${id}`);
                 const data = await response.json();
+                if (!response.ok) {
+                    if(data.message){
+                        throw new Error(data.message);
+                    }else{
+                        throw new Error('Failed to fetch');
+                    }
+                }
                 setUsuario(data);
             } catch (err) {
                 setError(err.message);
             }
         };
 
+        const fetchTripList = async () => {
+            try {
+                const response = await fetch(`http://34.173.74.193:5000/api/general/getTripList`);
+                const data = await response.json();
+                if (!response.ok) {
+                    if(data.message){
+                        throw new Error(data.message);
+                    }else{
+                        throw new Error('Failed to fetch');
+                    }
+                }
+                setListTrip(data);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+
+        fetchTripList();
         fetchUsuario();
     }, [id]);
 
@@ -36,7 +60,8 @@ const DetalleUsuario = () => {
             return;
         }
         try {
-            const response = await fetch(`http://localhost:8080/api/asistant/unSuscribeUser`, {
+            let asistente = localStorage.getItem("userId");
+            const response = await fetch(`http://34.173.74.193:5000/api/asistant/unSuscribeUser`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,7 +69,7 @@ const DetalleUsuario = () => {
                 body: JSON.stringify({
                     id: id,
                     motivo: comentario,
-                    asistenteNombre: "alguien"
+                    asistenteNombre: `Asistente con id ${asistente}`
                 }),
             });
 
@@ -80,13 +105,16 @@ const DetalleUsuario = () => {
                             <p className="card-text" style={{ color: usuario.Activo ? 'green' : 'red' }}>
                                 <strong>Estado:</strong> {usuario.Activo ? 'Activo' : 'Inactivo'}
                             </p>
-                            <button className="btn btn-danger" onClick={() => setModalVisible(true)}>Dar de baja</button>
+                            <button className="btn btn-danger" onClick={() => setModalVisible(true)} disabled={!usuario.Activo}>Dar de baja</button>
                         </div>
                     </div>
                     <div className="mt-3 row" style={{ display: usuario.Fotografia ? 'block' : 'none' }}>
                         <div className='col'>
                             <div className='d-flex justify-content-center'><img src={`data:image/jpeg;base64,${usuario.Fotografia}`} alt="Fotografia del Usuario" className="img-fluid" style={{ height: "200px" }} /></div>
                         </div>
+                    </div>
+                    <div>
+                        <ViajesAcordeon viajes={listTrip} tipo={"usuario"} id_filtro={id}/>
                     </div>
                 </div>
             </div>
