@@ -374,4 +374,6 @@ A veces, se agrega una capa intermedia para gestionar la lógica que conecta las
 
 ![TABLERO 4](/imagenes/tablero4.png)
 
+[Seguimiento daylis](https://drive.google.com/file/d/1n_e6VBRocP6cFFo2-0bDuEzrKeFY8Isr/view?usp=drive_link)
+
 [Reuniones](https://drive.google.com/drive/folders/1QWEyw2ybwz3jrcjPp0EXiE5BnLzsjL3L?usp=drive_link)
