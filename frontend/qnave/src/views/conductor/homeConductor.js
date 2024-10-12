@@ -21,6 +21,7 @@ function HomeConductor() {
   const [reportDescription, setReportDescription] = useState(""); // Descripción del problema
   const [reportImage, setReportImage] = useState(null); // Imagen del problema (base64)
   const [imageError, setImageError] = useState(false); // Estado para errores de la imagen
+  const [currentUserId, setCurrentUserId] = useState(null); // Estado para el usuarioID actual
 
   // Función para obtener la lista de viajes
   useEffect(() => {
@@ -192,7 +193,7 @@ function HomeConductor() {
     const conductorID = localStorage.getItem("userId"); // Obtiene el ConductorID del localStorage
     const tripData = {
       viajeId: currentTripId,
-      usuarioId: null,
+      usuarioId: currentUserId,
       conductorId: conductorID,
       categoria: reportCategory,
       descripcion: reportDescription,
@@ -229,8 +230,9 @@ function HomeConductor() {
   };
 
   // Función para mostrar el modal de reporte
-  const handleReportTrip = (viajeID) => {
+  const handleReportTrip = (viajeID, usuarioID) => {
     setCurrentTripId(viajeID); // Establece el viaje actual
+    setCurrentUserId(usuarioID); // Establece el usuarioID actual
     setShowReportModal(true); // Muestra el modal de reportar problema
   };
 
@@ -353,7 +355,9 @@ function HomeConductor() {
                       </Button>
                       <Button
                         variant="warning"
-                        onClick={handleReportTrip}
+                        onClick={() =>
+                          handleReportTrip(trip.ViajeID, trip.UsuarioID)
+                        }
                         className="me-2"
                       >
                         Reportar viaje
