@@ -32,35 +32,37 @@ const puntoPartidaB = [
 ];
 
 const tarifas = {
-  'Zona 1': { 'Zona 2': 10, 'Zona 3': 15, 'Zona 4': 20, 'Zona 5': 20, 'Zona 6': 25, 'Zona 7': 30, 'Zona 8': 30, 'Zona 9': 40, 'Zona 10': 50, 'Zona 11': 50, 'Zona 12': 25 },
-  'Zona 2': { 'Zona 3': 25, 'Zona 4': 25, 'Zona 5': 25, 'Zona 6': 30, 'Zona 7': 40, 'Zona 8': 40, 'Zona 9': 60, 'Zona 10': 70, 'Zona 11': 50, 'Zona 12': 35 },
-  'Zona 3': { 'Zona 4': 20, 'Zona 5': 30, 'Zona 6': 35, 'Zona 7': 25, 'Zona 8': 25, 'Zona 9': 40, 'Zona 10': 45, 'Zona 11': 40, 'Zona 12': 30 },
-  'Zona 4': { 'Zona 5': 15, 'Zona 6': 25, 'Zona 7': 25, 'Zona 8': 25, 'Zona 9': 15, 'Zona 10': 30, 'Zona 11': 35, 'Zona 12': 35 },
-  'Zona 5': { 'Zona 6': 15, 'Zona 7': 25, 'Zona 8': 35, 'Zona 9': 25, 'Zona 10': 35, 'Zona 11': 40, 'Zona 12': 40 },
-  'Zona 6': { 'Zona 7': 30, 'Zona 8': 35, 'Zona 9': 40, 'Zona 10': 50, 'Zona 11': 65, 'Zona 12': 60 },
-  'Zona 7': { 'Zona 8': 25, 'Zona 9': 35, 'Zona 10': 40, 'Zona 11': 40, 'Zona 12': 40 },
-  'Zona 8': { 'Zona 9': 25, 'Zona 10': 35, 'Zona 11': 35, 'Zona 12': 35 },
-  'Zona 9': { 'Zona 10': 15, 'Zona 11': 35, 'Zona 12': 30 },
-  'Zona 10': { 'Zona 11': 50, 'Zona 12': 50 },
-  'Zona 11': { 'Zona 12': 50 }
+  'Zona 1': { 'Zona 2': 10.00, 'Zona 3': 15.00, 'Zona 4': 20.00, 'Zona 5': 20.00, 'Zona 6': 25.00, 'Zona 7': 30.00, 'Zona 8': 30.00, 'Zona 9': 40.00, 'Zona 10': 50.00, 'Zona 11': 50.00, 'Zona 12': 25.00 },
+  'Zona 2': { 'Zona 3': 25.00, 'Zona 4': 25.00, 'Zona 5': 25.00, 'Zona 6': 30.00, 'Zona 7': 40.00, 'Zona 8': 40.00, 'Zona 9': 60.00, 'Zona 10': 70.00, 'Zona 11': 50.00, 'Zona 12': 35.00 },
+  'Zona 3': { 'Zona 4': 20.00, 'Zona 5': 30.00, 'Zona 6': 35.00, 'Zona 7': 25.00, 'Zona 8': 25.00, 'Zona 9': 40.00, 'Zona 10': 45.00, 'Zona 11': 40.00, 'Zona 12': 30.00 },
+  'Zona 4': { 'Zona 5': 15.00, 'Zona 6': 25.00, 'Zona 7': 25.00, 'Zona 8': 25.00, 'Zona 9': 15.00, 'Zona 10': 30.00, 'Zona 11': 35.00, 'Zona 12': 35.00 },
+  'Zona 5': { 'Zona 6': 15.00, 'Zona 7': 25.00, 'Zona 8': 35.00, 'Zona 9': 25.00, 'Zona 10': 35.00, 'Zona 11': 40.00, 'Zona 12': 40.00 },
+  'Zona 6': { 'Zona 7': 30.00, 'Zona 8': 35.00, 'Zona 9': 40.00, 'Zona 10': 50.00, 'Zona 11': 65.00, 'Zona 12': 60.00 },
+  'Zona 7': { 'Zona 8': 25.00, 'Zona 9': 35.00, 'Zona 10': 40.00, 'Zona 11': 40.00, 'Zona 12': 40.00 },
+  'Zona 8': { 'Zona 9': 25.00, 'Zona 10': 35.00, 'Zona 11': 35.00, 'Zona 12': 35.00 },
+  'Zona 9': { 'Zona 10': 15.00, 'Zona 11': 35.00, 'Zona 12': 30.00 },
+  'Zona 10': { 'Zona 11': 50.00, 'Zona 12': 50.00 },
+  'Zona 11': { 'Zona 12': 50.00 }
 };
 
 const PedirViaje = () => {
   const [puntoA, setPuntoA] = useState('');
   const [puntoB, setPuntoB] = useState('');
-  const [tarifa, setTarifa] = useState(0);
+  const [tarifa, setTarifa] = useState(0.00);
   const [showModal, setShowModal] = useState(false);
+  const [showModalSuccess, setShowModalSuccess] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false); // Modal para mostrar el mensaje de error
 
   useEffect(() => {
     if (puntoA && puntoB) {
       setShowModal(true);
       setTimeout(() => {
-        const calculatedTarifa = tarifas[puntoA]?.[puntoB] || 0;
+        const calculatedTarifa = tarifas[puntoA]?.[puntoB] || 0.00;
         setTarifa(calculatedTarifa);
         setShowModal(false);
       }, 2000);
     } else {
-      setTarifa(0);
+      setTarifa(0.00);
     }
   }, [puntoA, puntoB]);
 
@@ -68,6 +70,64 @@ const PedirViaje = () => {
     const selectedId = puntoPartidaA.find(p => p.title === puntoA)?.id;
     return selectedId ? punto.id > selectedId : true;
   });
+
+  const verificarViajePendiente = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/users/new_trip/${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.length > 0) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        throw new Error('Error al verificar el viaje pendiente.');
+      }
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const solicitarViaje = async () => {
+    const userId = localStorage.getItem("userId"); // Obtener el ID del usuario desde el localStorage
+
+    if (!puntoA || !puntoB) {
+      alert('Por favor selecciona un punto de partida y llegada.');
+      return;
+    }
+
+    // Verificar si ya hay un viaje pendiente
+    const tieneViajePendiente = await verificarViajePendiente(userId);
+    if (tieneViajePendiente) {
+      setShowErrorModal(true); // Mostrar el modal de error si hay un viaje pendiente
+      return;
+    }
+
+    const datosAEnviar = {
+      zonaInicio: puntoA, 
+      zonaFin: puntoB, 
+      usuarioId: userId
+    };
+
+    try {
+      const response = await fetch('http://localhost:8080/api/users/request_trip', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(datosAEnviar),
+      });
+
+      if (response.ok) {
+        setShowModalSuccess(true);
+      } else {
+        alert('Error al solicitar el viaje. Por favor, intenta de nuevo.');
+      }
+    } catch (error) {
+      alert('Ocurrió un error al conectar con el servidor.');
+    }
+  };
 
   return (
     <>
@@ -80,18 +140,13 @@ const PedirViaje = () => {
               <Form.Label>Selecciona el punto de partida</Form.Label>
               <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
                 <Form.Select
-                  style={{ width: '400px', fontSize: '0.9rem' }}
                   value={puntoA}
-                  onChange={(e) => {
-                    setPuntoA(e.target.value);
-                    setPuntoB('');
-                  }}
+                  onChange={(e) => setPuntoA(e.target.value)}
+                  required
                 >
-                  <option value="">Selecciona un punto de partida</option>
+                  <option value="">Selecciona una zona</option>
                   {puntoPartidaA.map((punto) => (
-                    <option key={punto.id} value={punto.title}>
-                      {punto.title}
-                    </option>
+                    <option key={punto.id} value={punto.title}>{punto.title}</option>
                   ))}
                 </Form.Select>
               </div>
@@ -101,62 +156,59 @@ const PedirViaje = () => {
               <Form.Label>Selecciona el punto de llegada</Form.Label>
               <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
                 <Form.Select
-                  style={{ width: '400px', fontSize: '0.9rem' }}
                   value={puntoB}
                   onChange={(e) => setPuntoB(e.target.value)}
-                  disabled={!puntoA}
+                  required
                 >
-                  <option value="">Selecciona un punto de llegada</option>
+                  <option value="">Selecciona una zona</option>
                   {filteredPuntoB.map((punto) => (
-                    <option key={punto.id} value={punto.title}>
-                      {punto.title}
-                    </option>
+                    <option key={punto.id} value={punto.title}>{punto.title}</option>
                   ))}
                 </Form.Select>
               </div>
             </Form.Group>
 
-            <Form.Group controlId="tarifa" className="mb-3">
-              <Form.Label>Tarifa</Form.Label>
-              <Form.Control
-                style={{ width: '400px', fontSize: '0.9rem' }}
-                type="text"
-                value={`Q ${tarifa}`}
-                readOnly
-              />
-            </Form.Group>
-
-            <Row className="mt-3">
-              <Col className="text-end">
-                <Button
-                  variant="primary"
-                  onClick={() => {
-                    if (puntoA && puntoB) {
-                      alert(`Punto de partida y llegada seleccionados con éxito: ${puntoA} -> ${puntoB}. Tarifa: Q${tarifa}`);
-                      setPuntoA('');
-                      setPuntoB('');
-                    } else {
-                      alert('Por favor selecciona un punto de partida y llegada.');
-                    }
-                  }}
-                  style={{ marginRight: '10px' }}
-                >
-                  Solicitar viaje
-                </Button>
+            <Row>
+              <Col>
+                <p>Tarifa estimada: Q {tarifa.toFixed(2)}</p>
+              </Col>
+              <Col className="d-flex justify-content-end">
+                <Button variant="primary" onClick={solicitarViaje}>Solicitar Viaje</Button>
               </Col>
             </Row>
           </Form>
         </Card>
-      </Container>
 
-      <Modal show={showModal} backdrop="static" keyboard={false}>
-        <Modal.Body className="text-center">
-          <h4>Calculando...</h4>
-          <div className="spinner-border" role="status">
-            <span className="visually-hidden">Cargando...</span>
-          </div>
-        </Modal.Body>
-      </Modal>
+        {/* Modal de error */}
+        <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Error</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Ya tienes un viaje pendiente o aceptado. Por favor completa ese viaje antes de solicitar uno nuevo.</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowErrorModal(false)}>Cerrar</Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* Modal de carga */}
+        <Modal show={showModal}>
+          <Modal.Header>
+            <Modal.Title>Cargando...</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Calculando la tarifa estimada, por favor espera.</Modal.Body>
+        </Modal>
+
+        {/* Modal de carga */}
+        <Modal show={showModalSuccess}>
+          <Modal.Header>
+            <Modal.Title>Solicitud Exitosa</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Su viaje se solicito con exito.</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowModalSuccess(false)}>Cerrar</Button>
+          </Modal.Footer>
+        </Modal>
+      </Container>
     </>
   );
 };

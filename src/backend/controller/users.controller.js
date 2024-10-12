@@ -317,3 +317,31 @@ export const viajeActivo = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los viajes activos' });
     }
 };
+
+export const nuevoViaje = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const pool = await getConnection();
+        const detalleViajePendiente = await pool.request()
+            .input("id", sql.Int, id)
+            .query(`
+                SELECT * FROM Viajes
+                WHERE UsuarioID = @id AND (Estado = 'Pendiente' OR Estado = 'Aceptado');
+            `);
+
+        const viajes = detalleViajePendiente.recordset;
+
+        if (viajes.length > 0) {
+            // Si hay viajes, devuelve la lista con los detalles
+            res.status(200).json(viajes);
+        } else {
+            // Si no hay viajes, devuelve una lista vacía
+            res.status(200).json([]); // Enviando una lista vacía
+        }
+
+    } catch (error) {
+        console.error('Error al obtener los viajes pendientes o aceptados', error);
+        res.status(500).json({ error: 'Error al obtener los viajes pendientes o aceptados' });
+    }
+};

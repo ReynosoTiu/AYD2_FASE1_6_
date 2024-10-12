@@ -11,13 +11,13 @@ import VisorUsuarios from "./views/asistente/visorUsuarios";
 import DetalleUsuario from "./views/asistente/DetalleUsuario";
 import VisorSolicitudEmpleos from "./views/asistente/visorSolicitudEmpleos";
 import DetalleSolicitud from "./views/asistente/DetalleSolicitud";
+import CambiarContrasenia from "./views/Login/NuevaContrasenia";
 import RegistroUsuario from "./views/usuario/registrarUsuario";
 import HomeUsuario from "./views/usuario/homeUsuario";
 import PedirViaje from "./views/usuario/pedirViaje";
 import VerConductor from "./views/usuario/verConductor";
 import ReportarProblema from "./views/usuario/reportarProblema";
 import CancelarViaje from "./views/usuario/cancelarViaje";
-import CambiarContrasenia from "./views/Login/NuevaContrasenia";
 
 function LayoutConductor() {
   return <HeaderConductor></HeaderConductor>;
@@ -42,15 +42,10 @@ function App() {
           element={<CambiarContrasenia />}
         ></Route>
         <Route
-          path="/cambioContrasenia/:userId"
-          element={<CambiarContrasenia />}
-        ></Route>
-        <Route
           path="/registro-conductor"
           element={<RegistrarConductor />}
         ></Route>
         <Route element={<LayoutConductor />}>
-          <Route path="/conductor" element={<HomeConductor />}></Route>
           <Route path="/conductor" element={<HomeConductor />}></Route>
         </Route>
         <Route path="/asistente" element={<LayoutAsistente />}>
@@ -62,31 +57,12 @@ function App() {
           <Route path="solicitudes" element={<VisorSolicitudEmpleos />} />
           <Route path="solicitudes/:id" element={<DetalleSolicitud />} />
         </Route>
-
-        <Route
-          path="/registro-usuario"
-          element={<RegistroUsuario />}
-        ></Route>
-        <Route
-          path="/usuario/home"
-          element={<HomeUsuario />}
-        ></Route>
-        <Route
-          path="/usuario/pedirviaje"
-          element={<PedirViaje />}
-        ></Route>
-          <Route
-          path="/usuario/verconductor"
-          element={<VerConductor />}
-        ></Route>
-          <Route
-          path="/usuario/reportarproblema"
-          element={<ReportarProblema />}
-        ></Route>
-          <Route
-          path="/usuario/cancelarviaje"
-          element={<CancelarViaje />}
-        ></Route>
+        <Route path="/registro-usuario" element={<RegistroUsuario />} /> 
+        <Route path="/usuario/home" element={<HomeUsuario />} />
+        <Route path="/usuario/pedirviaje" element={<PedirViaje />} />
+        <Route path="/usuario/verconductor" element={<VerConductor />} />
+        <Route path="/usuario/reportarproblema" element={<ReportarProblema />} />
+        <Route path="/usuario/cancelarviaje" element={<CancelarViaje />} />
       </Routes>
     </div>
   );

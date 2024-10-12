@@ -13,9 +13,13 @@ const RegistroUsuario = () => {
   const [formData, setFormData] = useState({
     nombreCompleto: "",
     fechaNacimiento: "",
+    dpi: "",
+    edad: 0,
     genero: "",
+    estadoCivil: "",
     correo: "",
     telefono: "",
+    direccion: "",
     password: "",
     confirmarPassword: ""
   });
@@ -56,9 +60,13 @@ const RegistroUsuario = () => {
     const {
         nombreCompleto,
         fechaNacimiento,
+        dpi,
+        edad,
         genero,
+        estadoCivil,
         correo,
         telefono,
+        direccion,
         password,
         confirmarPassword
     } = formData;
@@ -68,9 +76,13 @@ const RegistroUsuario = () => {
     if (!nombreCompleto)
       nuevosErrores.nombreCompleto = "El nombre es obligatorio.";
     if (!fechaNacimiento) nuevosErrores.fechaNacimiento = "La fecha de nacimiento es obligatoria.";
+    if (!dpi) nuevosErrores.dpi = "El dpi es obligatorio";
+    if (!edad) nuevosErrores.edad = "La edad es obligatorio";
     if (!genero) nuevosErrores.genero = "El genero es obligatorio";
+    if (!estadoCivil) nuevosErrores.estadoCivil = "El estado civil es obligatorio";
     if (!correo.includes("@")) nuevosErrores.correo = "Correo inválido.";
     if (telefono.length !== 8) nuevosErrores.telefono = "Teléfono inválido.";
+    if (!direccion) nuevosErrores.direccion = "La direccion es obligatoria";
     if (!password) nuevosErrores.password = "La contraseña es obligatoria";
     if (confirmarPassword !== password) nuevosErrores.confirmarPassword = "La contraseña es diferente";
     
@@ -92,14 +104,16 @@ const RegistroUsuario = () => {
     const datosAEnviar = {
       NombreCompleto: formData.nombreCompleto,
       FechaNacimiento: formData.fechaNacimiento,
+      DPI: formData.dpi,
+      Edad: formData.edad,
       Genero: formData.genero,
-      Correo: formData.correo,
-      NumeroCelular: formData.telefono,
+      EstadoCivil: formData.estadoCivil,
+      CorreoElectronico: formData.correo,
+      Telefono: formData.telefono,
+      Direccion: formData.direccion,
       Contrasena: formData.password,
       ConfirmarContrasena: formData.confirmarPassword
     };
-
-    console.log(datosAEnviar);
   
     try {
       const response = await fetch("http://localhost:8080/api/users/register", {
@@ -184,6 +198,36 @@ const RegistroUsuario = () => {
               </Form.Group>
 
               <Form.Group className="mb-3">
+                <Form.Label>Dpi</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="dpi"
+                  placeholder="Ingrese su numero de dpi"
+                  onChange={handleInputChange}
+                  value={formData.dpi}
+                  isInvalid={!!errores.dpi}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errores.dpi}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Edad</Form.Label>
+                <Form.Control
+                  type="number"
+                  name="edad"
+                  placeholder="Ingrese su edad"
+                  onChange={handleInputChange}
+                  value={formData.edad}
+                  isInvalid={!!errores.edad}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errores.edad}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
                 <Form.Label>Género</Form.Label>
                 <Form.Select
                   name="genero"
@@ -197,6 +241,23 @@ const RegistroUsuario = () => {
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">
                   {errores.genero}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Estado civil</Form.Label>
+                <Form.Select
+                  name="estadoCivil"
+                  onChange={handleInputChange}
+                  value={formData.estadoCivil}
+                  isInvalid={!!errores.estadoCivil}
+                >
+                  <option value="">Elige tu estado civil</option>
+                  <option value="Soltero">Soltero</option>
+                  <option value="Casado">Casado</option>
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errores.estadoCivil}
                 </Form.Control.Feedback>
               </Form.Group>
 
@@ -228,6 +289,21 @@ const RegistroUsuario = () => {
                 />
                 <Form.Control.Feedback type="invalid">
                   {errores.telefono}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Direccion</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="direccion"
+                  placeholder="Ingrese su direccion"
+                  onChange={handleInputChange}
+                  value={formData.direccion}
+                  isInvalid={!!errores.direccion}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errores.direccion}
                 </Form.Control.Feedback>
               </Form.Group>
 
