@@ -39,7 +39,7 @@ function CambioContrasenia() {
 
     try {
       const response = await fetch(
-        "http://localhost:8080/api/general/pwdChange",
+        "http://34.173.74.193:5000/api/general/pwdChange",
         {
           method: "POST",
           headers: {

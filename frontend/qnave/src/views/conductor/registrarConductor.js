@@ -114,7 +114,7 @@ const RegistroConductor = () => {
 
     try {
       const response = await fetch(
-        "http://34.173.74.193:8080/api/driver/register",
+        "http://34.173.74.193:5000/api/driver/register",
         {
           method: "POST",
           headers: {

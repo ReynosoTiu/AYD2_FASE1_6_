@@ -27,13 +27,16 @@ function Login() {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/general/logIn", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(loginData),
-      });
+      const response = await fetch(
+        "http://34.173.74.193:5000/api/general/logIn",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(loginData),
+        }
+      );
 
       const data = await response.json();
 
@@ -52,7 +55,7 @@ function Login() {
 
           // Redirigir según el tipo de usuario
           if (data.tipoUsuario === "Administrador") {
-            navigate("/"); //FALTA REDIRECCIONAR LA PAGINA DEADMINISTRADOR
+            navigate("/administrador"); //FALTA REDIRECCIONAR LA PAGINA DEADMINISTRADOR
           } else if (data.tipoUsuario === "Usuario") {
             navigate("/"); //FALTA REDIRECCIONAR LA PAGINA DE USUARIO
           } else if (data.tipoUsuario === "Conductor") {

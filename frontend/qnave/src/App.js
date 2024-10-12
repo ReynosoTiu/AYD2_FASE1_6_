@@ -12,6 +12,7 @@ import DetalleUsuario from "./views/asistente/DetalleUsuario";
 import VisorSolicitudEmpleos from "./views/asistente/visorSolicitudEmpleos";
 import DetalleSolicitud from "./views/asistente/DetalleSolicitud";
 import CambiarContrasenia from "./views/Login/NuevaContrasenia";
+import HomeAdministrador from "./views/administrador/homeAdmin";
 
 function LayoutConductor() {
   return <HeaderConductor></HeaderConductor>;
@@ -31,6 +32,7 @@ function App() {
     <div className="container-fluid">
       <Routes>
         <Route path="/" element={<Login />}></Route>
+        <Route path="/administrador" element={<HomeAdministrador />}></Route>
         <Route
           path="/cambioContrasenia/:userId"
           element={<CambiarContrasenia />}

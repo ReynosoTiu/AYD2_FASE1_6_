@@ -25,32 +25,7 @@ function HeaderConductor() {
             <ul className="navbar-nav">
               <li className="nav-item">
                 <Link className="nav-link active" to="/">
-                  <strong>Aceptar Viaje</strong>
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link active" to="/">
-                  <strong>Cancelar Viaje</strong>
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link active" to="/">
-                  <strong>Reportar Problema</strong>
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link active" to="/">
-                  <strong>Ver Informacion del Usuario</strong>
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link active" to="/">
-                  <strong>Finalizar Viaje</strong>
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link active" to="/">
-                  <strong>Citas de Clientes</strong>
+                  <strong>Viajes Disponibles</strong>
                 </Link>
               </li>
             </ul>
