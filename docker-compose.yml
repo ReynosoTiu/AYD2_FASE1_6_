@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  backend:
+    image: jona1403/ayd2-backend-test:1.2
+    container_name: ayd2-backend
+    volumes:
+      - ./uploads:/src/uploads
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  frontend:
+    image: jona1403/ayd2-frontend-test:1.2
+    container_name: ayd2-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend

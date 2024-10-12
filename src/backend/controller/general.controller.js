@@ -80,6 +80,16 @@ export const loginUsuario = async (req, res) => {
             });
         }
 
+        // Lógica para verificar contraseña temporal (solo para conductores)
+        if (userData.TipoUsuario === 'Asistente' && userData.ContrasenaTemporal) {
+            return res.status(200).json({
+                message: 'Contraseña temporal, es necesario cambiar la contraseña.',
+                temporal: true, // Indicar al cliente que la contraseña es temporal
+                tipoUsuario: userData.TipoUsuario, // Devolver el tipo de usuario
+                userId: userData.UsuarioID
+            });
+        }
+
         // Si la contraseña no es temporal, el inicio de sesión es exitoso
         return res.status(200).json({
             message: 'Inicio de sesión exitoso.',

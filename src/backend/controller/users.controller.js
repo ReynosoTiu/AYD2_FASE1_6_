@@ -95,15 +95,11 @@ export const registerUsuario = async (req, res) => {
     }
 };
 export const getInfoConductor = async (req, res) => {
-    const { id } = req.params;  // Recibir el ID desde los parámetros de la URL
+    const { id } = req.params;  
 
     try {
         const pool = await getConnection();
-  //      (SELECT COUNT(*) FROM Viajes V WHERE V.ConductorID = C.ConductorID) AS TotalViajes,                   
-    //    (SELECT STRING_AGG(Comentario, '; ') FROM Comentarios WHERE ConductorID = C.ConductorID) AS Comentarios
-  
-        // (SELECT AVG(Calificacion) FROM Calificaciones WHERE ConductorID = C.ConductorID) AS PromedioCalificacion,
-        // Realizar la consulta para obtener los detalles completos del conductor por ID
+
         const conductorDetalles = await pool.request()
             .input("ConductorID", sql.Int, id)
             .query(`
@@ -122,10 +118,8 @@ export const getInfoConductor = async (req, res) => {
             return res.status(404).json({ message: 'Conductor no encontrado.' });
         }
 
-        // Extraer datos del conductor
         const conductor = conductorDetalles.recordset[0];
 
-        // Definir rutas de los archivos
         const uploadDir = path.join(__dirname, '../uploads');       
         const vehicleImagePath = path.join(uploadDir, 'vehicleImages', conductor.FotografiaVehiculo);
 
@@ -137,7 +131,7 @@ export const getInfoConductor = async (req, res) => {
         // Retornar los detalles completos del conductor, incluyendo archivos en base64
         res.status(200).json({
             ...conductor,
-            FotografiaVehiculo: vehicleImageBase64
+            FotografiaVehiculo: conductor.FotografiaVehiculo
         });
 
     } catch (error) {
@@ -182,7 +176,7 @@ export const reportarProblema = async (req, res) => {
 };
 
 export const cancelarViaje = async (req, res) => {
-    const { viajeId, motivoCancelacion, justificacion,  usuarioId, conductorId } = req.body;
+    const { viajeId, motivoCancelacion, justificacion,  usuarioId, conductorId, quienCancela } = req.body;
 
     // Validar si falta el motivo de cancelación
     if (!motivoCancelacion) {
@@ -302,18 +296,46 @@ export const viajeActivo = async (req, res) => {
                 WHERE v.UsuarioID = @id AND v.Estado = 'Aceptado';
             `);
 
-        if (!detalleViajeActivo.recordset[0]) {
-            return res.status(404).json({ message: 'No tienes viajes activos.' });
+        const viaje = detalleViajeActivo.recordset;
+
+        if (viaje.length > 0) {
+            // Si hay viajes, devuelve la lista con los detalles
+            res.status(200).json(viaje);
+        } else {
+            // Si no hay viajes, devuelve una lista vacía
+            res.status(200).json([]); // Enviando una lista vacía
         }
-
-        const viaje = detalleViajeActivo.recordset[0];
-
-        res.status(200).json({
-            ...viaje,
-        });
 
     } catch (error) {
         console.error('Error al obtener los viajes activos', error);
         res.status(500).json({ error: 'Error al obtener los viajes activos' });
+    }
+};
+
+export const nuevoViaje = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const pool = await getConnection();
+        const detalleViajePendiente = await pool.request()
+            .input("id", sql.Int, id)
+            .query(`
+                SELECT * FROM Viajes
+                WHERE UsuarioID = @id AND (Estado = 'Pendiente' OR Estado = 'Aceptado');
+            `);
+
+        const viajes = detalleViajePendiente.recordset;
+
+        if (viajes.length > 0) {
+            // Si hay viajes, devuelve la lista con los detalles
+            res.status(200).json(viajes);
+        } else {
+            // Si no hay viajes, devuelve una lista vacía
+            res.status(200).json([]); // Enviando una lista vacía
+        }
+
+    } catch (error) {
+        console.error('Error al obtener los viajes pendientes o aceptados', error);
+        res.status(500).json({ error: 'Error al obtener los viajes pendientes o aceptados' });
     }
 };
