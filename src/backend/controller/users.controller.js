@@ -182,7 +182,7 @@ export const reportarProblema = async (req, res) => {
 };
 
 export const cancelarViaje = async (req, res) => {
-    const { viajeId, motivoCancelacion, justificacion,  usuarioId, conductorId } = req.body;
+    const { viajeId, motivoCancelacion, justificacion,  usuarioId, conductorId, quienCancela } = req.body;
 
     // Validar si falta el motivo de cancelación
     if (!motivoCancelacion) {
@@ -302,15 +302,15 @@ export const viajeActivo = async (req, res) => {
                 WHERE v.UsuarioID = @id AND v.Estado = 'Aceptado';
             `);
 
-        if (!detalleViajeActivo.recordset[0]) {
-            return res.status(404).json({ message: 'No tienes viajes activos.' });
+        const viaje = detalleViajeActivo.recordset;
+
+        if (viaje.length > 0) {
+            // Si hay viajes, devuelve la lista con los detalles
+            res.status(200).json(viaje);
+        } else {
+            // Si no hay viajes, devuelve una lista vacía
+            res.status(200).json([]); // Enviando una lista vacía
         }
-
-        const viaje = detalleViajeActivo.recordset[0];
-
-        res.status(200).json({
-            ...viaje,
-        });
 
     } catch (error) {
         console.error('Error al obtener los viajes activos', error);
