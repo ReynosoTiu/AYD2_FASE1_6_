@@ -18,13 +18,30 @@ function Login() {
   const [tipoMensaje, setTipoMensaje] = useState("");
   const navigate = useNavigate();
 
+  const esCorreoElectronico = (usuario) => {
+    // Expresión regular para validar correos electrónicos
+    const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regexCorreo.test(usuario);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const loginData = {
-      CodigoEmpleado: nombreUsuario,
-      Contrasena: contrasenia,
-    };
+    let loginData;
+
+    if (esCorreoElectronico(nombreUsuario)) {
+      // Si el nombre de usuario es un correo electrónico
+      loginData = {
+        CorreoElectronico: nombreUsuario,
+        Contrasena: contrasenia,
+      };
+    } else {
+      // Si el nombre de usuario es un código de empleado
+      loginData = {
+        CodigoEmpleado: nombreUsuario,
+        Contrasena: contrasenia,
+      };
+    }
 
     try {
       const response = await fetch("http://localhost:8080/api/general/logIn", {
@@ -54,7 +71,7 @@ function Login() {
           if (data.tipoUsuario === "Administrador") {
             navigate("/"); //FALTA REDIRECCIONAR LA PAGINA DEADMINISTRADOR
           } else if (data.tipoUsuario === "Usuario") {
-            navigate("/"); //FALTA REDIRECCIONAR LA PAGINA DE USUARIO
+            navigate("/usuario/home");
           } else if (data.tipoUsuario === "Conductor") {
             navigate("/conductor");
           } else if (data.tipoUsuario === "Asistente") {
