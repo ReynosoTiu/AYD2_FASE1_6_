@@ -222,6 +222,8 @@ Funcionalidades Clave:
   - **Uso Eficiente de Recursos:** Minimiza el uso de memoria al asegurar que solo exista una instancia.
 - **Utilidad en el Proyecto:** Se puede utilizar el patrón Singleton para la configuración global de la plataforma, como la autenticación del administrador y la gestión de reportes, asegurando que solo haya una instancia que controle estas operaciones críticas.
 
+![Diagrama Singleton](/diagramas/singleton.png)
+
 2. **Patrón Factory Method**
 
 **Descripción:** El patrón Factory Method define una interfaz para crear objetos, pero permite a las subclases decidir qué clase instanciar. Es útil cuando el tipo de objeto a crear no se conoce hasta el momento de ejecución.
@@ -230,6 +232,8 @@ Funcionalidades Clave:
   - **Flexibilidad:** Permite la creación de objetos sin especificar la clase exacta, facilitando la adición de nuevos tipos de usuarios o roles.
   - **Desacoplamiento:** Reduce el acoplamiento entre el código cliente y las clases concretas que se crean.
 - **Utilidad en el Proyecto:** Se puede usar este patrón para crear diferentes tipos de usuarios (Usuario, Conductor, Asistente) sin que el código de la aplicación tenga que conocer las clases específicas que se instancian.
+
+![Diagrama Singleton](/diagramas/factory.png)
 
 3. **Patrón Observer**
 

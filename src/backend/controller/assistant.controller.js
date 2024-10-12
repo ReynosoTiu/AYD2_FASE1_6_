@@ -237,8 +237,7 @@ export const obtenerConductoresBasicos = async (req, res) => {
                     U.CorreoElectronico,
                     C.NumeroPlaca                   
                 FROM Conductores C
-                INNER JOIN Usuarios U ON C.ConductorID = U.UsuarioID
-                WHERE C.Estatus = 'Activo';
+                INNER JOIN Usuarios U ON C.ConductorID = U.UsuarioID;
             `);
 
         if (conductores.recordset.length === 0) {

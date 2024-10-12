@@ -15,7 +15,7 @@ const DetalleConductor = () => {
     useEffect(() => {
         const fetchConductor = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/asistant/getDriverById/${id}`);
+                const response = await fetch(`http://34.173.74.193:5000/api/asistant/getDriverById/${id}`);
                 const data = await response.json();
                 if (!response.ok) {
                     if(data.message){
