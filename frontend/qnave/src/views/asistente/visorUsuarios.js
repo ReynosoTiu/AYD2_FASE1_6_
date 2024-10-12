@@ -11,7 +11,7 @@ function VisorUsuarios() {
         const fetchConductores = async () => {
             setCargando(true);
             try {
-                const response = await fetch('http://localhost:8080/api/asistant/getUsers');
+                const response = await fetch('http://34.173.74.193:5000/api/asistant/getUsers');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
