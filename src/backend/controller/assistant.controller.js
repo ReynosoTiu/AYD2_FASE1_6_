@@ -426,7 +426,7 @@ export const darDeBajaUsuario = async (req, res) => {
                 .input("AsistenteNombre", sql.NVarChar, asistenteNombre)
                 .query(`
                     UPDATE Usuarios SET Activo = 0 WHERE UsuarioID = @UsuarioID;
-
+                    UPDATE Conductores SET Estatus='Inactivo' where ConductorId=@UsuarioID;
                     INSERT INTO BajasConductores (ConductorID, Motivo, BajaPor)
                     VALUES (@UsuarioID, @Motivo, @AsistenteNombre);
                 `);
