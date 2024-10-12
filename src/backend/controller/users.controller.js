@@ -95,15 +95,11 @@ export const registerUsuario = async (req, res) => {
     }
 };
 export const getInfoConductor = async (req, res) => {
-    const { id } = req.params;  // Recibir el ID desde los parámetros de la URL
+    const { id } = req.params;  
 
     try {
         const pool = await getConnection();
-  //      (SELECT COUNT(*) FROM Viajes V WHERE V.ConductorID = C.ConductorID) AS TotalViajes,                   
-    //    (SELECT STRING_AGG(Comentario, '; ') FROM Comentarios WHERE ConductorID = C.ConductorID) AS Comentarios
-  
-        // (SELECT AVG(Calificacion) FROM Calificaciones WHERE ConductorID = C.ConductorID) AS PromedioCalificacion,
-        // Realizar la consulta para obtener los detalles completos del conductor por ID
+
         const conductorDetalles = await pool.request()
             .input("ConductorID", sql.Int, id)
             .query(`
@@ -122,10 +118,8 @@ export const getInfoConductor = async (req, res) => {
             return res.status(404).json({ message: 'Conductor no encontrado.' });
         }
 
-        // Extraer datos del conductor
         const conductor = conductorDetalles.recordset[0];
 
-        // Definir rutas de los archivos
         const uploadDir = path.join(__dirname, '../uploads');       
         const vehicleImagePath = path.join(uploadDir, 'vehicleImages', conductor.FotografiaVehiculo);
 
@@ -137,7 +131,7 @@ export const getInfoConductor = async (req, res) => {
         // Retornar los detalles completos del conductor, incluyendo archivos en base64
         res.status(200).json({
             ...conductor,
-            FotografiaVehiculo: vehicleImageBase64
+            FotografiaVehiculo: conductor.FotografiaVehiculo
         });
 
     } catch (error) {

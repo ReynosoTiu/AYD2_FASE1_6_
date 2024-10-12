@@ -151,6 +151,8 @@ export const listarConductoresInactivos = async (req, res) => {
     }
 };
 
+
+//TODO: OBTENER IMAGENES
 export const obtenerConductorInactivoPorID = async (req, res) => {
     const { id } = req.params;  // Recibir el ID desde los parámetros de la URL
 
@@ -210,9 +212,9 @@ export const obtenerConductorInactivoPorID = async (req, res) => {
         // Retornar los detalles del conductor inactivo con los archivos en base64
         res.status(200).json({
             ...data,
-            CV: cvBase64,
-            Fotografia: profileImageBase64,
-            FotografiaVehiculo: vehicleImageBase64
+            CV: data.CV,
+            Fotografia: data.Fotografia,
+            FotografiaVehiculo: data.FotografiaVehiculo
         });
     } catch (error) {
         console.error('Error al obtener el conductor inactivo:', error);
@@ -251,6 +253,7 @@ export const obtenerConductoresBasicos = async (req, res) => {
     }
 };
 
+//TODO: OBTENER IMAGENES
 export const obtenerConductorDetallesPorID = async (req, res) => {
     const { id } = req.params;  // Recibir el ID desde los parámetros de la URL
 
@@ -311,9 +314,9 @@ export const obtenerConductorDetallesPorID = async (req, res) => {
         // Retornar los detalles completos del conductor, incluyendo archivos en base64
         res.status(200).json({
             ...conductor,
-            CV: cvBase64,
-            Fotografia: profileImageBase64,
-            FotografiaVehiculo: vehicleImageBase64
+            CV: conductor.CV,
+            Fotografia: conductor.Fotografia,
+            FotografiaVehiculo: conductor.FotografiaVehiculo
         });
 
     } catch (error) {
@@ -345,7 +348,7 @@ export const obtenerUsuarios = async (req, res) => {
     }
 };
 
-
+//TODO: OBTENER IMAGENES
 export const obtenerDetalleUsuario = async (req, res) => {
     const { id } = req.params; // ID del usuario a buscar
 
@@ -386,18 +389,6 @@ export const obtenerDetalleUsuario = async (req, res) => {
 
         const usuario = resultado.recordset[0];
 
-        // Convertir la ruta del CV a Base64
-        if (usuario.CV) {
-            const fs = require('fs');
-            const path = require('path');
-            const cvPath = path.join(__dirname, usuario.CV);
-            if (fs.existsSync(cvPath)) {
-                const cvBase64 = fs.readFileSync(cvPath, { encoding: 'base64' });
-                usuario.CV = cvBase64;
-            } else {
-                usuario.CV = null;
-            }
-        }
 
         res.status(200).json(usuario);
     } catch (error) {

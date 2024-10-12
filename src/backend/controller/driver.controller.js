@@ -126,12 +126,12 @@ export const registerConductor = async (req, res) => {
         // Insertar datos en la tabla Conductores
         const conductorResult = await pool.request()
             .input("ConductorID", sql.Int, ConductorID)
-            .input("Fotografia", sql.VarChar, imageFilename)
-            .input("FotografiaVehiculo", sql.VarChar, vehicleImageFilename)
+            .input("Fotografia", sql.VarChar, Fotografia)
+            .input("FotografiaVehiculo", sql.VarChar, FotografiaVehiculo)
             .input("NumeroPlaca", sql.VarChar, NumeroPlaca)
             .input("MarcaVehiculo", sql.VarChar, MarcaVehiculo)
             .input("AnioVehiculo", sql.Int, AnioVehiculo)
-            .input("CV", sql.VarChar, cvFilename)
+            .input("CV", sql.VarChar, CV)
             .query(`
                 INSERT INTO Conductores (ConductorID, Fotografia, FotografiaVehiculo, NumeroPlaca, MarcaVehiculo, AnioVehiculo, CV)
                 VALUES (@ConductorID, @Fotografia, @FotografiaVehiculo, @NumeroPlaca, @MarcaVehiculo, @AnioVehiculo, @CV);
@@ -402,7 +402,7 @@ export const listaViajes = async (req, res) => {
             return res.status(404).json({ error: 'No se encontraron viajes.' });
         }
 
-        res.status(200).json(viajes.recordset[0]);
+        res.status(200).json(viajes.recordset);
 
     } catch (error) {
         res.status(500).json({ error: 'Error cargar listado de viajes' });
