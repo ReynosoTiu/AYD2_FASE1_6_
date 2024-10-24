@@ -135,6 +135,29 @@ CREATE TABLE Tarifas (
     punto_destino VARCHAR(50),
     tarifa DECIMAL(10, 2)
 );
+
+CREATE TABLE Calificaciones (
+    CalificacionID INT IDENTITY(1,1) PRIMARY KEY,
+    ViajeID INT FOREIGN KEY REFERENCES Viajes(ViajeID),
+    UsuarioID INT FOREIGN KEY REFERENCES Usuarios(UsuarioID),
+    ConductorID INT FOREIGN KEY REFERENCES Conductores(ConductorID),
+    Estrellas INT CHECK (Estrellas >= 1 AND Estrellas <= 5),
+    Comentario NVARCHAR(255),
+    FechaCalificacion DATETIME DEFAULT GETDATE(),
+    RolCalificador NVARCHAR(20) CHECK (RolCalificador IN ('Usuario', 'Conductor'))  -- Nueva columna para identificar quién califica
+);
+
+
+-- Tabla para almacenar ubicaciones guardadas por los usuarios
+CREATE TABLE UbicacionesGuardadas (
+    UbicacionID INT IDENTITY(1,1) PRIMARY KEY,
+    UsuarioID INT FOREIGN KEY REFERENCES Usuarios(UsuarioID),
+    NombreUbicacion NVARCHAR(100),
+    Zona NVARCHAR(50),
+    FechaGuardado DATETIME DEFAULT GETDATE()
+);
+
+
 INSERT INTO tarifas (punto_partida, punto_destino, tarifa) VALUES 
 ('Zona 1', 'Zona 2', 10.00),
 ('Zona 1', 'Zona 3', 15.00),

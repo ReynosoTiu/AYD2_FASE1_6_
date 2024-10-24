@@ -126,28 +126,29 @@ export const listarConductoresInactivos = async (req, res) => {
     try {
         const pool = await getConnection();
 
-        // Realizar la consulta para obtener los conductores con estatus 'Inactivo' (datos generales)
-        const conductoresInactivos = await pool.request()
+        // Realizar la consulta para obtener los conductores con estatus 'Inactivo' y 'Pendiente'
+        const conductoresPendientesYInactivos = await pool.request()
             .query(`
                 SELECT 
                     U.UsuarioID,
                     U.NombreCompleto,
                     U.Telefono,
-                    U.CorreoElectronico
+                    U.CorreoElectronico,
+                    C.Estatus  -- Para verificar el estado del conductor
                 FROM Conductores C
                 INNER JOIN Usuarios U ON C.ConductorID = U.UsuarioID
-                WHERE C.Estatus = 'Inactivo';
+                WHERE C.Estatus IN ('Inactivo', 'Pendiente');  -- Incluye ambos estatus
             `);
 
-        if (conductoresInactivos.recordset.length === 0) {
-            return res.status(404).json({ message: 'No hay conductores inactivos por aprobar.' });
+        if (conductoresPendientesYInactivos.recordset.length === 0) {
+            return res.status(404).json({ message: 'No hay conductores pendientes o inactivos por aprobar.' });
         }
 
-        // Retornar la lista de conductores inactivos con datos generales
-        res.status(200).json(conductoresInactivos.recordset);
+        // Retornar la lista de conductores con datos generales
+        res.status(200).json(conductoresPendientesYInactivos.recordset);
     } catch (error) {
-        console.error('Error al obtener los conductores inactivos:', error);
-        res.status(500).json({ error: 'Error al obtener los conductores inactivos' });
+        console.error('Error al obtener los conductores pendientes o inactivos:', error);
+        res.status(500).json({ error: 'Error al obtener los conductores pendientes o inactivos' });
     }
 };
 
@@ -159,8 +160,8 @@ export const obtenerConductorInactivoPorID = async (req, res) => {
     try {
         const pool = await getConnection();
 
-        // Realizar la consulta para obtener los detalles del conductor inactivo por ID
-        const conductorInactivo = await pool.request()
+        // Realizar la consulta para obtener los detalles del conductor por ID, sin importar el estatus
+        const conductor = await pool.request()
             .input("ConductorID", sql.Int, id)
             .query(`
                 SELECT 
@@ -178,17 +179,18 @@ export const obtenerConductorInactivoPorID = async (req, res) => {
                     C.NumeroPlaca,
                     C.MarcaVehiculo,
                     C.AnioVehiculo,
-                    C.CV
+                    C.CV,
+                    C.Estatus  -- Para verificar el estado del conductor
                 FROM Conductores C
                 INNER JOIN Usuarios U ON C.ConductorID = U.UsuarioID
-                WHERE C.Estatus = 'Inactivo' AND C.ConductorID = @ConductorID;
+                WHERE C.ConductorID = @ConductorID;
             `);
 
-        if (!conductorInactivo.recordset[0]) {
+        if (!conductor.recordset[0]) {
             return res.status(404).json({ message: 'Conductor no encontrado o ya activado.' });
         }
 
-        const data = conductorInactivo.recordset[0];
+        const data = conductor.recordset[0];
 
         // Rutas de las imágenes y el CV en el sistema de archivos
         const uploadDir = path.join(__dirname, '../uploads');
@@ -209,16 +211,16 @@ export const obtenerConductorInactivoPorID = async (req, res) => {
             ? `data:image/png;base64,${fs.readFileSync(vehicleImageFilePath, 'base64')}`
             : null;
 
-        // Retornar los detalles del conductor inactivo con los archivos en base64
+        // Retornar los detalles del conductor con los archivos en base64
         res.status(200).json({
             ...data,
             CV: data.CV,
-            Fotografia: data.Fotografia,
-            FotografiaVehiculo: data.FotografiaVehiculo
+            Fotografia: profileImageBase64,  // Enviar imagen en base64
+            FotografiaVehiculo: vehicleImageBase64  // Enviar imagen de vehículo en base64
         });
     } catch (error) {
-        console.error('Error al obtener el conductor inactivo:', error);
-        res.status(500).json({ error: 'Error al obtener el conductor inactivo' });
+        console.error('Error al obtener el conductor:', error);
+        res.status(500).json({ error: 'Error al obtener el conductor' });
     }
 };
 
