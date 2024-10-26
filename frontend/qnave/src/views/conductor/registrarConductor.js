@@ -1,3 +1,4 @@
+import API_URL from "../../config/config";
 import React, { useState } from "react";
 import {
   Form,
@@ -113,16 +114,13 @@ const RegistroConductor = () => {
     }
 
     try {
-      const response = await fetch(
-        "http://34.173.74.193:5000/api/driver/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(`${API_URL}/driver/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       const data = await response.json();
 

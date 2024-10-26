@@ -24,8 +24,13 @@ function HeaderConductor() {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav">
               <li className="nav-item">
-                <Link className="nav-link active" to="/">
+                <Link className="nav-link active" to="/conductor">
                   <strong>Viajes Disponibles</strong>
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link active" to="/viajeActivo">
+                  <strong>Viaje Activo</strong>
                 </Link>
               </li>
             </ul>

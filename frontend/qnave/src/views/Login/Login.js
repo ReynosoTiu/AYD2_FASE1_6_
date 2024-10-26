@@ -1,3 +1,4 @@
+import API_URL from "../../config/config";
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
@@ -44,16 +45,13 @@ function Login() {
     }
 
     try {
-      const response = await fetch(
-        "http://34.173.74.193:5000/api/general/logIn",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(loginData),
-        }
-      );
+      const response = await fetch(`${API_URL}/general/logIn`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginData),
+      });
 
       const data = await response.json();
 
