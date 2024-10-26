@@ -294,7 +294,6 @@ export const reportarProblema = async (req, res) => {
     }
 };
 
-
 export const verInformacionUsuario = async (req, res) => {
     const { id } = req.params;
 
@@ -309,26 +308,30 @@ export const verInformacionUsuario = async (req, res) => {
                     u.NombreCompleto,
                     u.Telefono,
                     u.CorreoElectronico,
-                    COALESCE(AVG(c.Calificacion), 0) AS NumeroEstrellas
+                    COALESCE(AVG(c.Estrellas), 0) AS NumeroEstrellas
                 FROM 
                     Usuarios u
                 LEFT JOIN 
-                    Calificaciones c ON u.UsuarioID = c.UsuarioID
+                    Calificaciones c ON u.UsuarioID = c.UsuarioID AND c.RolCalificador = 'Conductor'
                 WHERE 
                     u.UsuarioID = @UsuarioID
                 GROUP BY 
                     u.NombreCompleto, u.Telefono, u.CorreoElectronico
             `);
 
-        if (!usuarioInfo.recordset[0]) {
+        // Verificar si el usuario existe
+        if (usuarioInfo.recordset.length === 0) {
             return res.status(404).json({ error: 'Información del usuario no encontrada' });
         }
 
+        // Devolver la información del usuario
         res.status(200).json(usuarioInfo.recordset[0]);
     } catch (error) {
+        console.error('Error al obtener información del usuario:', error); // Imprime el error en la consola
         res.status(500).json({ error: 'Error al obtener información del usuario' });
     }
 };
+
 
 
 export const finalizarViaje = async (req, res) => {
