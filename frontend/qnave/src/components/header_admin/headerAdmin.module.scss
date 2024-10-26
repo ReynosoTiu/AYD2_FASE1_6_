@@ -1,0 +1,19 @@
+@import "~bootstrap/scss/bootstrap";
+
+.logo {
+  height: 100px;
+  width: 100px;
+}
+
+.showNav {
+  display: block;
+}
+
+.hideNav {
+  display: none;
+}
+
+.custom-btn-sucess {
+  @extend .btn, .btn-danger;
+  margin: 5px;
+}

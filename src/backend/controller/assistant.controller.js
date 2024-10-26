@@ -514,7 +514,13 @@ export const aprobarRechazarConductor = async (req, res) => {
 export const generarOferta = async (req, res) => {
     const { descripcion, descuento, fechaInicio, fechaFin } = req.body;
     try {
-        await pool.query(
+        const pool = await getConnection();
+        await pool.request()
+            .input("descripcion", sql.VarChar, descripcion)
+            .input("descuento", sql.Int, descuento)
+            .input("fechaInicio", sql.VarChar, fechaInicio)
+            .input("fechaFin", sql.VarChar, fechaFin)
+            .query(
             `INSERT INTO Ofertas (Descripcion, Descuento, FechaInicio, FechaFin)
              VALUES (@descripcion, @descuento, @fechaInicio, @fechaFin)`,
             { descripcion, descuento, fechaInicio, fechaFin }
@@ -528,6 +534,7 @@ export const generarOferta = async (req, res) => {
 // Obtener todas las ofertas
 export const getOfertas = async (req, res) => {
     try {
+        const pool = await getConnection();
         const result = await pool.query(`SELECT * FROM Ofertas WHERE Activo = 1`);
         res.json(result.recordset);
     } catch (error) {
@@ -539,7 +546,10 @@ export const getOfertas = async (req, res) => {
 export const desactivarOferta = async (req, res) =>{
     const { id } = req.body;
     try {
-        await pool.query(`UPDATE Ofertas SET Activo = 0 WHERE OfertaID = @id`, { id });
+        const pool = await getConnection();
+        await pool.request()
+        .input("id", sql.Int, id)
+        .query(`UPDATE Ofertas SET Activo = 0 WHERE OfertaID = @id`, { id });
         res.json({ message: 'Oferta desactivada.' });
     } catch (error) {
         res.status(500).json({ error: 'Error al desactivar la oferta.' });
@@ -551,9 +561,13 @@ export const desactivarOferta = async (req, res) =>{
 export const updateConductorInfo = async (req, res) =>{
 
     const {id, telefono, marcaVehiculo, numeroPlaca,asistente } = req.body;
+    const pool = await getConnection();
 
     try {
-        const conductor = await pool.query(`SELECT * FROM Conductores WHERE ConductorID = @id`, { id });
+        
+        const conductor = await pool.request()
+        .input("id", sql.Int, id)
+        .query(`SELECT * FROM Conductores WHERE ConductorID = @id`, { id });
 
         if (!conductor.recordset.length) {
             return res.status(404).json({ error: 'Conductor no encontrado.' });
@@ -586,6 +600,7 @@ export const updateConductorInfo = async (req, res) =>{
 // Generar reporte de vehículos
 export const reporteVehiculos = async (req, res) =>{
     try {
+        const pool = await getConnection();
         const result = await pool.query(`
             SELECT C.ConductorID, C.FotografiaVehiculo, C.NumeroPlaca, C.MarcaVehiculo, C.AnioVehiculo, C.Estatus
             FROM Conductores C

@@ -1,31 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Card, Form, Button, Modal, Row, Col, Spinner } from 'react-bootstrap';
+import { Container, Card, Form, Button, Modal, Spinner } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HeaderUsuario from '../../components/header_usuario/headerUsuario';
+import API_URL from "../../config/config";
 
-const CancelarViaje = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false); // Modal de éxito
+const CancelarYCalificarViaje = () => {
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
   const [motivoCancelacion, setMotivoCancelacion] = useState('');
-  const statusViaje = 'En curso';
   const [loading, setLoading] = useState(true);
   const [viajeActivo, setViajeActivo] = useState(false);
   const [noViajeActivo, setNoViajeActivo] = useState(false);
   const [error, setError] = useState(false);
   const [viaje, setViaje] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [conductor, setConductor] = useState(null);
+  const [noConductor, setNoConductor] = useState(false);
+  const [comentario, setComentario] = useState(''); // Estado para el comentario
   const userId = localStorage.getItem("userId");
-
-  const idUsuario = localStorage.getItem('userId');
+  const statusViaje = 'En curso';
 
   useEffect(() => {
     const verificarViajeActivo = async () => {
       try {
-        const response = await fetch(`http://34.173.74.193:5000/api/users/active_trip/${idUsuario}`);
+        const response = await fetch(`${API_URL}/users/active_trip/${userId}`);
         if (response.ok) {
           const data = await response.json();
           if (data.length > 0) {
             setViaje(data[0]);
             setViajeActivo(true);
+            const idConductor = data[0].idConductor;
+            const responseConductor = await fetch(`${API_URL}/users/driver_information/${idConductor}`);
+            if (responseConductor.ok) {
+              const dataConductor = await responseConductor.json();
+              setConductor(dataConductor);
+            } else {
+              setError(true);
+            }
           } else {
             setNoViajeActivo(true);
           }
@@ -40,13 +52,15 @@ const CancelarViaje = () => {
     };
 
     verificarViajeActivo();
-  }, [idUsuario]);
+  }, [userId]);
 
-  const handleShowModal = () => setShowModal(true);
-
-  const handleCloseModal = () => setShowModal(false);
-
+  const handleShowCancelModal = () => setShowCancelModal(true);
+  const handleCloseCancelModal = () => setShowCancelModal(false);
   const handleCloseSuccessModal = () => setShowSuccessModal(false);
+  const handleCloseRatingModal = () => {
+    setShowRatingModal(false);
+    setComentario(''); // Limpiar el comentario al cerrar el modal
+  };
 
   const handleCancelViaje = async () => {
     const datosAEnviar = {
@@ -59,7 +73,7 @@ const CancelarViaje = () => {
     };
 
     try {
-      const response = await fetch('http://34.173.74.193:5000/api/users/cancel_trip', {
+      const response = await fetch(`${API_URL}/users/cancel_trip`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,14 +83,47 @@ const CancelarViaje = () => {
 
       if (response.ok) {
         setViajeActivo(false); // Desactivar viaje en la interfaz
-        setShowModal(false);
-        setShowSuccessModal(true); // Mostrar el modal de éxito
+        setShowCancelModal(false);
+        setShowSuccessModal(true); // Mostrar el modal de éxito de cancelación
       } else {
         throw new Error('Error al cancelar el viaje.');
       }
     } catch (error) {
       console.error('Error:', error);
       alert('Hubo un problema al cancelar el viaje.');
+    }
+  };
+
+  const handleOpenRatingModal = () => {
+    setShowSuccessModal(false); // Cerrar modal de éxito de cancelación
+    setShowRatingModal(true); // Abrir modal para calificar al conductor
+  };
+
+  const handleRateConductor = async () => {
+    const datosAEnviar = {
+      viajeID: viaje.idViaje, 
+      usuarioID: userId, 
+      conductorID: viaje.idConductor, 
+      estrellas: rating, 
+      comentario: comentario // Incluir el comentario en la calificación
+    };
+
+    console.log(datosAEnviar)
+    try {
+      const response = await fetch(`${API_URL}/users/rateDriver`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datosAEnviar),
+      });
+
+      if (response.ok) {
+        setShowRatingModal(false); // Cerrar modal de calificación
+        alert('Has calificado al conductor exitosamente.');
+      } else {
+        alert('Error al calificar al conductor.');
+      }
+    } catch {
+      alert('Hubo un problema al calificar al conductor.');
     }
   };
 
@@ -105,18 +152,32 @@ const CancelarViaje = () => {
     </Modal>
   );
 
-  const renderSuccessModal = () => (
-    <Modal show={showSuccessModal} onHide={handleCloseSuccessModal} centered>
+  const renderNoConductorModal = () => (
+    <Modal show={noConductor} onHide={() => setNoConductor(false)} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Viaje Cancelado</Modal.Title>
+        <Modal.Title>No hay Conductor</Modal.Title>
       </Modal.Header>
-      <Modal.Body>El viaje ha sido cancelado exitosamente.</Modal.Body>
+      <Modal.Body>
+        Aún no hay conductor asignado para este viaje.
+      </Modal.Body>
       <Modal.Footer>
-        <Button variant="success" onClick={handleCloseSuccessModal}>
-          Cerrar
-        </Button>
+        <Button variant="secondary" onClick={() => setNoConductor(false)}>Cerrar</Button>
       </Modal.Footer>
     </Modal>
+  );
+
+  const renderStars = () => (
+    <div>
+      {[1, 2, 3, 4, 5].map((star) => (
+        <span
+          key={star}
+          style={{ cursor: 'pointer', color: star <= rating ? '#ffc107' : '#e4e5e9', fontSize: '2.5rem' }}
+          onClick={() => setRating(star)}
+        >
+          ★
+        </span>
+      ))}
+    </div>
   );
 
   if (error) return <div>Error al verificar el viaje activo.</div>;
@@ -126,10 +187,54 @@ const CancelarViaje = () => {
       <HeaderUsuario />
       {renderLoadingModal()}
       {renderNoViajeModal()}
-      {renderSuccessModal()} {/* Modal de éxito */}
+      {renderNoConductorModal()}
+
+      {/* Modal de éxito para la cancelación */}
+      <Modal show={showSuccessModal} onHide={handleCloseSuccessModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Acción Exitosa</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          El viaje ha sido cancelado exitosamente.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="success" onClick={handleOpenRatingModal}>
+            Calificar al Conductor
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal para calificar al conductor */}
+      <Modal show={showRatingModal} onHide={handleCloseRatingModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Califica al Conductor</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {conductor && (
+            <>
+              <p>Conductor: {conductor.NombreCompleto}</p>
+              {renderStars()}
+              <Form.Group className="mt-3">
+                <Form.Label>Comentario:</Form.Label>
+                <Form.Control 
+                  as="textarea" 
+                  rows={3} 
+                  value={comentario} 
+                  onChange={(e) => setComentario(e.target.value)} 
+                  placeholder="Escribe tu comentario aquí..." 
+                />
+              </Form.Group>
+            </>
+          )}
+          <Button className="mt-3" variant="primary" onClick={handleRateConductor}>
+            Enviar Calificación
+          </Button>
+        </Modal.Body>
+      </Modal>
+
       {!loading && viajeActivo && (
         <Container className="mt-5">
-          <Card className="mx-auto mb-4 p-3 shadow-smp-4 border rounded shadow" style={{ maxWidth: '40%' }}>
+          <Card className="mx-auto mb-4 p-3 shadow border rounded" style={{ maxWidth: '40%' }}>
             <h2 className="text-center mb-4">Información del Viaje</h2>
             <Form>
               <Form.Group controlId="puntoA" className="mb-3">
@@ -138,7 +243,7 @@ const CancelarViaje = () => {
               </Form.Group>
 
               <Form.Group controlId="puntoB" className="mb-3">
-                <Form.Label>Punto de Llegada B</Form.Label>
+                <Form.Label>Punto de Partida B</Form.Label>
                 <Form.Control type="text" value={viaje.puntoLlegada} readOnly />
               </Form.Group>
 
@@ -152,45 +257,30 @@ const CancelarViaje = () => {
                 <Form.Control type="text" value={statusViaje} readOnly />
               </Form.Group>
 
-              {statusViaje !== 'Cancelado' && (
-                <Row className="mt-3">
-                  <Col className="text-end">
-                    <Button variant="danger" onClick={handleShowModal}>
-                      Cancelar Viaje
-                    </Button>
-                  </Col>
-                </Row>
-              )}
+              <Button variant="danger" onClick={handleShowCancelModal}>
+                Cancelar Viaje
+              </Button>
             </Form>
           </Card>
         </Container>
       )}
 
-      <Modal show={showModal} onHide={handleCloseModal}>
+      {/* Modal para cancelar viaje */}
+      <Modal show={showCancelModal} onHide={handleCloseCancelModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Cancelar Viaje</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group controlId="motivoCancelacion">
-            <Form.Label>Motivo de Cancelación</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              value={motivoCancelacion}
-              onChange={(e) => setMotivoCancelacion(e.target.value)}
-              placeholder="Escribe el motivo de la cancelación"
-            />
+          <Form.Group>
+            <Form.Label>Motivo de Cancelación:</Form.Label>
+            <Form.Control as="textarea" rows={3} value={motivoCancelacion} onChange={(e) => setMotivoCancelacion(e.target.value)} />
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
+          <Button variant="secondary" onClick={handleCloseCancelModal}>
             Cerrar
           </Button>
-          <Button
-            variant="danger"
-            onClick={handleCancelViaje}
-            disabled={!motivoCancelacion.trim()}
-          >
+          <Button variant="danger" onClick={handleCancelViaje}>
             Confirmar Cancelación
           </Button>
         </Modal.Footer>
@@ -199,4 +289,4 @@ const CancelarViaje = () => {
   );
 };
 
-export default CancelarViaje;
+export default CancelarYCalificarViaje;

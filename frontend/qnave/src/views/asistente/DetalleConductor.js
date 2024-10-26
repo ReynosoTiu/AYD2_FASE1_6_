@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ViajesAcordeon from './viajesAcordeon';
+import ViajesAcordeon from './ViajesAcordeon';
 
 const DetalleConductor = () => {
     const { id } = useParams();
@@ -12,44 +12,54 @@ const DetalleConductor = () => {
     const [comentarioError, setComentarioError] = useState('');
     const navigate = useNavigate();
 
+    const [telefono, setTelefono] = useState('');
+    const [marcaVehiculo, setMarcaVehiculo] = useState('');
+    const [numeroPlaca, setNumeroPlaca] = useState('');
+
     useEffect(() => {
         const fetchConductor = async () => {
             try {
-                const response = await fetch(`http://34.173.74.193:5000/api/asistant/getDriverById/${id}`);
+                const response = await fetch(`http://34.30.112.78:5000/api/asistant/getDriverById/${id}`);
                 const data = await response.json();
                 if (!response.ok) {
-                    if(data.message){
-                        throw new Error(data.message);
-                    }else{
-                        throw new Error('Failed to fetch');
-                    }
+                    throw new Error(data.message || 'Failed to fetch');
                 }
                 setConductor(data);
+                setTelefono(data.Telefono);
+                setMarcaVehiculo(data.MarcaVehiculo);
+                setNumeroPlaca(data.NumeroPlaca);
             } catch (err) {
                 setError(err.message);
             }
         };
 
-        const fetchTripList = async () => {
-            try {
-                const response = await fetch(`http://34.173.74.193:5000/api/general/getTripList`);
-                const data = await response.json();
-                if (!response.ok) {
-                    if(data.message){
-                        throw new Error(data.message);
-                    }else{
-                        throw new Error('Failed to fetch');
-                    }
-                }
-                setListTrip(data);
-            } catch (err) {
-                setError(err.message);
-            }
-        };
-
-        fetchTripList();
         fetchConductor();
     }, [id]);
+
+    const handleUpdateConductor = async () => {
+        try {
+            const asistente = localStorage.getItem("userId");
+            const response = await fetch(`http://34.30.112.78:5000/api/asistant/updateConductor`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id,
+                    telefono,
+                    marcaVehiculo,
+                    numeroPlaca,
+                    asistente
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Error al actualizar la información del conductor');
+            }
+            alert('Información del conductor actualizada exitosamente');
+        } catch (err) {
+            setError(err.message);
+        }
+    };
 
     if (!conductor) return <p>Cargando...</p>;
     if (error) return <p>Error: {error}</p>;
@@ -61,7 +71,7 @@ const DetalleConductor = () => {
         }
         try {
             let asistente = localStorage.getItem("userId");
-            const response = await fetch(`http://34.173.74.193:5000/api/asistant/unSuscribeUser`, {
+            const response = await fetch("http://34.30.112.78:5000/api/asistant/unSuscribeUser", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -91,10 +101,10 @@ const DetalleConductor = () => {
                     <div className="row">
                         <div className="col-md-6">
                             <h3 className="card-title">{conductor.NombreCompleto}</h3>
-                            <p className="card-text"><strong>Teléfono:</strong> {conductor.Telefono}</p>
-                            <p className="card-text"><strong>Correo Electrónico:</strong> {conductor.CorreoElectronico}</p>
-                            <p className="card-text"><strong>Dirección:</strong> {conductor.Direccion}</p>
-                            <p className="card-text"><strong>Estado Civil:</strong> {conductor.EstadoCivil}</p>
+                            <input className="form-control my-2" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="Teléfono" />
+                            <input className="form-control my-2" value={marcaVehiculo} onChange={(e) => setMarcaVehiculo(e.target.value)} placeholder="Marca del Vehículo" />
+                            <input className="form-control my-2" value={numeroPlaca} onChange={(e) => setNumeroPlaca(e.target.value)} placeholder="Número de Placa" />
+                            <button className="btn btn-primary" onClick={handleUpdateConductor}>Actualizar Información</button>
                         </div>
                         <div className="col-md-6">
                             <p className="card-text"><strong>Número de Placa:</strong> {conductor.NumeroPlaca}</p>
@@ -103,28 +113,27 @@ const DetalleConductor = () => {
                             <p className="card-text" style={{ color: conductor.EstadoCuenta === 'Activo' ? 'green' : 'red' }}>
                                 <strong>Estado de Cuenta:</strong> {conductor.EstadoCuenta}
                             </p>
-                            <button className="btn btn-danger" onClick={() => setModalVisible(true)}>Dar de baja</button>
+                            <button className="btn btn-danger" disabled={conductor.EstadoCuenta !== 'Activo'} onClick={() => setModalVisible(true)}>Dar de baja</button>
                         </div>
                     </div>
                     <div className="mt-3 row" >
                         <div className='col'>
-                            <div className='d-flex justify-content-center'><img src={`data:image/jpeg;base64,${conductor.Fotografia}`} alt="Fotografia del Conductor" className="img-fluid" style={{ height: "200px" }} /></div>
+                            <div className='d-flex justify-content-center'><img src={`${conductor.Fotografia}`} alt="Fotografia del Conductor" className="img-fluid" style={{ height: "200px" }} /></div>
                         </div>
                         <div className='col'>
-                            <div className='d-flex justify-content-center'><img src={`data:image/jpeg;base64,${conductor.FotografiaVehiculo}`} alt="Fotografia del Vehículo" className="img-fluid" style={{ height: "200px" }} /></div>
+                            <div className='d-flex justify-content-center'><img src={`${conductor.FotografiaVehiculo}`} alt="Fotografia del Vehículo" className="img-fluid" style={{ height: "200px" }} /></div>
                         </div>
                     </div>
                     <div>
                         <ViajesAcordeon viajes={listTrip} tipo={"conductor"} id_filtro={id}/>
                     </div>
                     <div className="mt-4">
-                        <object data={`data:application/pdf;base64,${conductor.CV}`} type="application/pdf" width="100%" height="300">
-                            <a href={`data:application/pdf;base64,${conductor.CV}`} download="CV.pdf">Descargar CV</a>
+                        <object data={`${conductor.CV}`} type="application/pdf" width="100%" height="300">
+                            <a href={`${conductor.CV}`} download="CV.pdf">Descargar CV</a>
                         </object>
                     </div>
                 </div>
             </div>
-
             <div className={`modal ${modalVisible ? 'show' : ''}`} tabIndex="-1" style={{ display: modalVisible ? 'block' : 'none' }}>
                 <div className="modal-dialog">
                     <div className="modal-content">

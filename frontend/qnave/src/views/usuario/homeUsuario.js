@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import HeaderUsuario from "../../components/header_usuario/headerUsuario";
+import API_URL from "../../config/config";
 
 function HomeUsuario() {
   const [nombreUsuario, setNombreUsuario] = useState("");
@@ -10,7 +11,7 @@ function HomeUsuario() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await fetch(`http://34.173.74.193:5000/api/driver/getUserInfo/${userId}`);
+        const response = await fetch(`${API_URL}/driver/getUserInfo/${userId}`);
         const data = await response.json();
 
         if (response.ok) {
