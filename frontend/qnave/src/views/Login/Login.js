@@ -85,7 +85,7 @@ function Login() {
         setTipoMensaje("danger");
       } else if (response.status === 401) {
         // Manejo de error 401
-        setMensaje("Contraseña incorrecta");
+        setMensaje("Contraseña incorrecta o usuario no activo");
         setTipoMensaje("danger");
       } else if (response.status === 500) {
         // Manejo de error 500

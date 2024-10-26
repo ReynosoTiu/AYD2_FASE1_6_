@@ -3,6 +3,9 @@ import logo from "../../assets/logo/auto.png";
 import styles from "./headerConductor.module.scss";
 
 function HeaderConductor() {
+  const cleanStorage = () => {
+    localStorage.clear();
+  };
   return (
     <div>
       <nav className={"navbar navbar-expand-lg bg-body-tertiary mb-4"}>
@@ -31,6 +34,23 @@ function HeaderConductor() {
               <li className="nav-item">
                 <Link className="nav-link active" to="/viajeActivo">
                   <strong>Viaje Activo</strong>
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link active" to="/modificar-conductor">
+                  <strong>Modificar Informacion</strong>
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link active" to="/ganancias-conductor">
+                  <strong>Ganancias</strong>
+                </Link>
+              </li>
+            </ul>
+            <ul className="navbar-nav ms-auto" onClick={cleanStorage}>
+              <li className="nav-item">
+                <Link className="nav-link active" to="/">
+                  <strong>Cerrar sesión</strong>
                 </Link>
               </li>
             </ul>
