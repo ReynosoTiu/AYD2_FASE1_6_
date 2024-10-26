@@ -244,6 +244,8 @@ Funcionalidades Clave:
   - **Notificaciones Automáticas:** Proporciona un mecanismo eficiente para notificar a múltiples objetos sobre cambios en el estado.
 - **Utilidad en el Proyecto:** Se puede utilizar el patrón Observer para notificar a los conductores sobre nuevas solicitudes de viaje, asegurando que solo un conductor acepte cada viaje y evitando conflictos.
 
+![Diagrama Observer](/diagramas/observador.png)
+
 4. **Patrón Strategy**
 
 **Descripción:** El patrón Strategy define una familia de algoritmos, encapsula cada uno y los hace intercambiables. Permite que el algoritmo varie independientemente de los clientes que lo utilizan.
@@ -252,6 +254,8 @@ Funcionalidades Clave:
   - **Intercambiabilidad de Algoritmos:** Permite cambiar el comportamiento del sistema de forma dinámica.
   - **Separación de Responsabilidades:** Facilita la modificación o adición de nuevos algoritmos sin alterar el código cliente.
 - **Utilidad en el Proyecto:** Este patrón es útil para calcular tarifas de viaje basadas en zonas, permitiendo la adición o modificación de estrategias de cálculo sin cambiar el código del sistema principal.
+
+![Diagrama Strategy](/diagramas/strategy.png)
 
 5. **Patrón Command**
 
@@ -262,6 +266,8 @@ Funcionalidades Clave:
   - **Deshacer y Rehacer:** Permite implementar operaciones de deshacer y rehacer fácilmente.
 - **Utilidad en el Proyecto:** puede ser útil para manejar operaciones como aceptar y cancelar viajes, permitiendo una gestión flexible de estos comandos y facilitando la implementación de características adicionales como deshacer una acción.
 
+![Diagrama Command](/diagramas/command.png)
+
 6. **Patrón Decorator**
 
 **Descripción:** El patrón Decorator permite añadir responsabilidades adicionales a un objeto de forma dinámica. Proporciona una alternativa flexible a la sub-clasificación para extender la funcionalidad de los objetos.
@@ -271,7 +277,8 @@ Funcionalidades Clave:
   - **Flexibilidad:** Los objetos pueden ser decorados con múltiples funcionalidades de manera combinada.
 - **Utilidad en el Proyecto:** se puede aplicar el patrón Decorator para añadir funcionalidades adicionales a los usuarios y conductores, como reportar problemas o agregar calificaciones, sin alterar las clases originales.
 
-**Patrones de diseño propuestos**
+![Diagrama Decorador](/diagramas/decorador.png)
+
 
 # Estilo arquitectonico propuesto (En capas)
 1. Capa de presentación
