@@ -20,6 +20,7 @@ import ReportarProblema from "./views/usuario/reportarProblema";
 import CancelarViaje from "./views/usuario/cancelarViaje";
 import HomeAdministrador from "./views/administrador/homeAdmin";
 import EditarUsuario from "./views/usuario/editarUsuario";
+import ViajeActivo from "./views/conductor/viajeActivo";
 
 function LayoutConductor() {
   return <HeaderConductor></HeaderConductor>;
@@ -50,6 +51,7 @@ function App() {
         ></Route>
         <Route element={<LayoutConductor />}>
           <Route path="/conductor" element={<HomeConductor />}></Route>
+          <Route path="/viajeActivo" element={<ViajeActivo />}></Route>
         </Route>
         <Route path="/asistente" element={<LayoutAsistente />}>
           <Route index element={<VisorConductores />} />

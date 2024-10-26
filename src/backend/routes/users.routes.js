@@ -27,6 +27,6 @@ router.get("/users/getUbicaciones/:id", listarUbicacionesGuardadas);
 router.post("/users/saveUbicaciones", guardarUbicacion);
 router.post("/users/rateDriver", calificarConductor);
 router.get("/users/getUserInfo/:id", verInformacionUsuario);
-router.get("/users/updateUser/:id", actualizarInformacionUsuario);
+router.post("/users/updateUser/:id", actualizarInformacionUsuario);
 
 export default router;

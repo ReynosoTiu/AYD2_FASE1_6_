@@ -1,3 +1,4 @@
+import API_URL from "../../config/config";
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -38,20 +39,17 @@ function CambioContrasenia() {
     }
 
     try {
-      const response = await fetch(
-        "http://34.173.74.193:5000/api/general/pwdChange",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            UsuarioID: userId, // Obtenido desde la URL
-            ContrasenaActual: contrasenaActual,
-            NuevaContrasena: nuevaContrasena,
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/general/pwdChange`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          UsuarioID: userId, // Obtenido desde la URL
+          ContrasenaActual: contrasenaActual,
+          NuevaContrasena: nuevaContrasena,
+        }),
+      });
 
       const data = await response.json();
 
