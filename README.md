@@ -1,5 +1,5 @@
 <p style="text-align: justify;"><b>Universidad de San Carlos de Guatemala</b></p>
-<p style="text-align: justify;"><b>LABORATORIO ANALISIS Y DISEñO DE SISTEMAS 2 </b></p>
+<p style="text-align: justify;"><b>LABORATORIO ANALISIS Y DISEÑO DE SISTEMAS 2 </b></p>
 <p style="text-align: justify;"><b>Seccion A</b></p>
 <p style="text-align: justify;"><b>Inga. Claudia Liceth Rojas Morales</b></p>
 <p style="text-align: justify;"><b>Aux. Brandon Mauricio Noj Romero</b></p>
