@@ -301,9 +301,24 @@ export const verInformacionUsuario = async (req, res) => {
     try {
         const pool = await getConnection();
 
+        // Modificación de la consulta SQL para incluir la calificación
         const usuarioInfo = await pool.request()
             .input("UsuarioID", sql.Int, id)
-            .query("SELECT NombreCompleto,Telefono,CorreoElectronico FROM Usuarios WHERE UsuarioID = @UsuarioID");
+            .query(`
+                SELECT 
+                    u.NombreCompleto,
+                    u.Telefono,
+                    u.CorreoElectronico,
+                    COALESCE(AVG(c.Calificacion), 0) AS NumeroEstrellas
+                FROM 
+                    Usuarios u
+                LEFT JOIN 
+                    Calificaciones c ON u.UsuarioID = c.UsuarioID
+                WHERE 
+                    u.UsuarioID = @UsuarioID
+                GROUP BY 
+                    u.NombreCompleto, u.Telefono, u.CorreoElectronico
+            `);
 
         if (!usuarioInfo.recordset[0]) {
             return res.status(404).json({ error: 'Información del usuario no encontrada' });
@@ -314,6 +329,7 @@ export const verInformacionUsuario = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener información del usuario' });
     }
 };
+
 
 export const finalizarViaje = async (req, res) => {
     const { ViajeID, PagoRecibido } = req.body;
