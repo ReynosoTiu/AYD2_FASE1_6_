@@ -29,7 +29,7 @@ function HomeConductor() {
         const data = await response.json();
         setTrips(data);
       } else {
-        setErrorMessage("Error al obtener la lista de viajes");
+        setErrorMessage("No hay viajes disponibles en este momento");
       }
     };
 
