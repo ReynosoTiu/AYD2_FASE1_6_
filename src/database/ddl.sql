@@ -225,3 +225,26 @@ INSERT INTO tarifas (punto_partida, punto_destino, tarifa) VALUES
 ('Zona 10', 'Zona 11', 50.00),
 ('Zona 10', 'Zona 12', 50.00),
 ('Zona 11', 'Zona 12', 50.00);
+
+
+CREATE TABLE Ofertas (
+    OfertaID INT IDENTITY(1,1) PRIMARY KEY,
+    Descripcion NVARCHAR(255),
+    Descuento DECIMAL(5,2),  -- Porcentaje de descuento
+    FechaInicio DATETIME NOT NULL,
+    FechaFin DATETIME NOT NULL,
+    Activo BIT DEFAULT 1  -- Indicador si la oferta está activa
+);
+
+CREATE TABLE HistorialCambios (
+    CambioID INT IDENTITY(1,1) PRIMARY KEY,
+    ConductorID INT FOREIGN KEY REFERENCES Conductores(ConductorID),
+    CampoModificado NVARCHAR(50),
+    ValorAnterior NVARCHAR(255),
+    ValorNuevo NVARCHAR(255),
+    FechaCambio DATETIME DEFAULT GETDATE(),
+    RealizadoPor NVARCHAR(255)  -- Nombre del asistente que hizo el cambio
+);
+
+
+

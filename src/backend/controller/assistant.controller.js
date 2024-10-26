@@ -510,3 +510,92 @@ export const aprobarRechazarConductor = async (req, res) => {
 };
 
 
+// Crear una oferta
+export const generarOferta = async (req, res) => {
+    const { descripcion, descuento, fechaInicio, fechaFin } = req.body;
+    try {
+        await pool.query(
+            `INSERT INTO Ofertas (Descripcion, Descuento, FechaInicio, FechaFin)
+             VALUES (@descripcion, @descuento, @fechaInicio, @fechaFin)`,
+            { descripcion, descuento, fechaInicio, fechaFin }
+        );
+        res.status(201).json({ message: 'Oferta creada exitosamente.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al crear la oferta.' });
+    }
+};
+
+// Obtener todas las ofertas
+export const getOfertas = async (req, res) => {
+    try {
+        const result = await pool.query(`SELECT * FROM Ofertas WHERE Activo = 1`);
+        res.json(result.recordset);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener las ofertas.' });
+    }
+};
+
+// Desactivar oferta
+export const desactivarOferta = async (req, res) =>{
+    const { id } = req.body;
+    try {
+        await pool.query(`UPDATE Ofertas SET Activo = 0 WHERE OfertaID = @id`, { id });
+        res.json({ message: 'Oferta desactivada.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al desactivar la oferta.' });
+    }
+};
+
+
+// Actualizar datos del conductor y registrar cambios
+export const updateConductorInfo = async (req, res) =>{
+
+    const {id, telefono, marcaVehiculo, numeroPlaca,asistente } = req.body;
+
+    try {
+        const conductor = await pool.query(`SELECT * FROM Conductores WHERE ConductorID = @id`, { id });
+
+        if (!conductor.recordset.length) {
+            return res.status(404).json({ error: 'Conductor no encontrado.' });
+        }
+
+        // Registrar cambios en historial
+        await pool.query(
+            `INSERT INTO HistorialCambios (ConductorID, CampoModificado, ValorAnterior, ValorNuevo, RealizadoPor)
+             VALUES (@id, 'Telefono', @valorAnterior, @nuevoValor, @asistente)`,
+            {
+                id,
+                valorAnterior: conductor.recordset[0].Telefono,
+                nuevoValor: telefono,
+                asistente
+            }
+        );
+
+        // Actualizar la información del conductor
+        await pool.query(
+            `UPDATE Conductores SET Telefono = @telefono, MarcaVehiculo = @marca, NumeroPlaca = @placa WHERE ConductorID = @id`,
+            { telefono, marca: marcaVehiculo, placa: numeroPlaca, id }
+        );
+
+        res.json({ message: 'Información del conductor actualizada.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar la información del conductor.' });
+    }
+};
+
+// Generar reporte de vehículos
+export const reporteVehiculos = async (req, res) =>{
+    try {
+        const result = await pool.query(`
+            SELECT C.ConductorID, C.FotografiaVehiculo, C.NumeroPlaca, C.MarcaVehiculo, C.AnioVehiculo, C.Estatus
+            FROM Conductores C
+        `);
+        res.json(result.recordset);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al generar el reporte de vehículos.' });
+    }
+};
+
+
+
+
