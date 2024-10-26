@@ -9,7 +9,9 @@ import {
   nuevoViaje,
   listarUbicacionesGuardadas,
   guardarUbicacion,
-  calificarConductor
+  calificarConductor,
+  verInformacionUsuario,
+  actualizarInformacionUsuario
 } from "../controller/users.controller.js";
 
 const router = Router();
@@ -24,5 +26,7 @@ router.get("/users/new_trip/:id", nuevoViaje);
 router.get("/users/getUbicaciones/:id", listarUbicacionesGuardadas);
 router.post("/users/saveUbicaciones", guardarUbicacion);
 router.post("/users/rateDriver", calificarConductor);
+router.get("/users/getUserInfo/:id", verInformacionUsuario);
+router.get("/users/updateUser/:id", actualizarInformacionUsuario);
 
 export default router;

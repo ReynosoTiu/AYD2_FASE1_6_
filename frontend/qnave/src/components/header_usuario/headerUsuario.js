@@ -44,6 +44,11 @@ function HeaderUsuario() {
                   <strong>Cancelar Viaje</strong>
                 </Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link active" to="/usuario/editarusuario">
+                  <strong>Modificar Informacion</strong>
+                </Link>
+              </li>
             </ul>
 
             <ul className="navbar-nav ms-auto">

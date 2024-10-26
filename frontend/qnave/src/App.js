@@ -19,6 +19,7 @@ import VerConductor from "./views/usuario/verConductor";
 import ReportarProblema from "./views/usuario/reportarProblema";
 import CancelarViaje from "./views/usuario/cancelarViaje";
 import HomeAdministrador from "./views/administrador/homeAdmin";
+import EditarUsuario from "./views/usuario/editarUsuario";
 
 function LayoutConductor() {
   return <HeaderConductor></HeaderConductor>;
@@ -68,6 +69,7 @@ function App() {
           element={<ReportarProblema />}
         />
         <Route path="/usuario/cancelarviaje" element={<CancelarViaje />} />
+        <Route path="/usuario/editarusuario" element={<EditarUsuario />} />
       </Routes>
     </div>
   );

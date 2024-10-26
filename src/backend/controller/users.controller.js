@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from 'url';
+import { userInfo } from "os";
 
 // Definir __dirname manualmente para módulos ES6
 const __filename = fileURLToPath(import.meta.url);
@@ -437,5 +438,81 @@ export const listarUbicacionesGuardadas = async (req, res) => {
     } catch (error) {
         console.error('Error al obtener ubicaciones guardadas', error);
         res.status(500).json({ error: 'Error al obtener ubicaciones guardadas' });
+    }
+};
+
+export const verInformacionUsuario = async (req, res) => {
+    const { id } = req.params;
+    console.log(id)
+    try {
+        const pool = await getConnection();
+
+        const usuarioInfo = await pool.request()
+            .input("UsuarioID", sql.Int, id)
+            .query("SELECT NombreCompleto, FechaNacimiento, DPI, Edad, Genero, EstadoCivil, CorreoElectronico, Telefono, Direccion FROM Usuarios WHERE UsuarioID = @UsuarioID");
+
+        if (!usuarioInfo.recordset[0]) {
+            return res.status(404).json({ error: 'Información del usuario no encontrada' });
+        }
+
+        res.status(200).json(usuarioInfo.recordset[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener información del usuario' });
+    }
+};
+
+export const actualizarInformacionUsuario = async (req, res) => {
+    const { id } = req.params; // Obtén el id del usuario de los parámetros de la solicitud
+    const {
+        NombreCompleto,
+        FechaNacimiento,
+        DPI,
+        Edad,
+        Genero,
+        EstadoCivil,
+        CorreoElectronico,
+        Telefono,
+        Direccion
+    } = req.body; // Obtén la información del cuerpo de la solicitud
+
+    try {
+        const pool = await getConnection();
+
+        // Prepara la consulta de actualización
+        const result = await pool.request()
+            .input("UsuarioID", sql.Int, id)
+            .input("NombreCompleto", sql.NVarChar, NombreCompleto)
+            .input("FechaNacimiento", sql.Date, FechaNacimiento)
+            .input("DPI", sql.NVarChar, DPI)
+            .input("Edad", sql.Int, Edad)
+            .input("Genero", sql.NVarChar, Genero)
+            .input("EstadoCivil", sql.NVarChar, EstadoCivil)
+            .input("CorreoElectronico", sql.NVarChar, CorreoElectronico)
+            .input("Telefono", sql.NVarChar, Telefono)
+            .input("Direccion", sql.NVarChar, Direccion)
+            .query(`
+                UPDATE Usuarios
+                SET 
+                    NombreCompleto = @NombreCompleto,
+                    FechaNacimiento = @FechaNacimiento,
+                    DPI = @DPI,
+                    Edad = @Edad,
+                    Genero = @Genero,
+                    EstadoCivil = @EstadoCivil,
+                    CorreoElectronico = @CorreoElectronico,
+                    Telefono = @Telefono,
+                    Direccion = @Direccion
+                WHERE UsuarioID = @UsuarioID
+            `);
+
+        // Comprueba si la actualización afectó a alguna fila
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado o no se realizaron cambios' });
+        }
+
+        res.status(200).json({ mensaje: 'Información del usuario actualizada correctamente' });
+    } catch (error) {
+        console.error(error); // Para ayudar con la depuración
+        res.status(500).json({ error: 'Error al actualizar la información del usuario' });
     }
 };
