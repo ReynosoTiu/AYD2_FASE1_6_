@@ -74,7 +74,7 @@ const PedirViaje = () => {
 
   const verificarViajePendiente = async (userId) => {
     try {
-      const response = await fetch(${API_URL}`/users/new_trip/${userId}`);
+      const response = await fetch(`${API_URL}/users/new_trip/${userId}`);
       if (response.ok) {
         const data = await response.json();
         if (data.length > 0) {
