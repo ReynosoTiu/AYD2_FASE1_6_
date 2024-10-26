@@ -1,6 +1,7 @@
 import { Routes, Route, Outlet } from "react-router-dom";
 import HeaderConductor from "./components/header_conductor/headerConductor";
 import HeaderAsistente from "./components/header_asistente/headerAsistente";
+import HeaderAdministrador from "./components/header_admin/headerAdmin";
 import HomeConductor from "./views/conductor/homeConductor";
 import Login from "./views/Login/Login";
 import RegistrarConductor from "./views/conductor/registrarConductor";
@@ -23,9 +24,17 @@ import EditarUsuario from "./views/usuario/editarUsuario";
 import ViajeActivo from "./views/conductor/viajeActivo";
 import ModificarInformacionConductor from "./views/conductor/modificarConductor";
 import GananciasConductor from "./views/conductor/gananciasConductor";
+import RegistrarAsistente from "./views/administrador/registrarAsistente";
+import EliminarAsistente from "./views/administrador/eliminarAsistente";
+import Calificaciones from "./views/administrador/verCalificaciones";
+import EstadisticasUso from "./views/administrador/estadisticasUso";
 
 function LayoutConductor() {
   return <HeaderConductor></HeaderConductor>;
+}
+
+function LayoutAdministrador() {
+  return <HeaderAdministrador></HeaderAdministrador>;
 }
 
 function LayoutAsistente() {
@@ -42,7 +51,21 @@ function App() {
     <div className="container-fluid">
       <Routes>
         <Route path="/" element={<Login />}></Route>
-        <Route path="/administrador" element={<HomeAdministrador />}></Route>
+
+        <Route element={<LayoutAdministrador />}>
+          <Route path="/administrador" element={<HomeAdministrador />}></Route>
+          <Route
+            path="/registro-asistente"
+            element={<RegistrarAsistente />}
+          ></Route>
+          <Route
+            path="/eliminar-asistente"
+            element={<EliminarAsistente />}
+          ></Route>
+          <Route path="/calificaciones" element={<Calificaciones />}></Route>
+          <Route path="/estadisticas-uso" element={<EstadisticasUso />}></Route>
+        </Route>
+
         <Route
           path="/cambioContrasenia/:userId"
           element={<CambiarContrasenia />}
