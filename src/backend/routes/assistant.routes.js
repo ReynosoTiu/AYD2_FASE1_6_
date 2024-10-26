@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
     registerAsistente,listarConductoresInactivos,obtenerConductorInactivoPorID,obtenerConductoresBasicos,obtenerConductorDetallesPorID,obtenerUsuarios,obtenerDetalleUsuario,darDeBajaUsuario,
-    aprobarRechazarConductor
+    aprobarRechazarConductor,reporteVehiculos,updateConductorInfo,generarOferta,getOfertas,desactivarOferta
    } from "../controller/assistant.controller.js"
 
 const router = Router();
@@ -15,4 +15,13 @@ router.get("/asistant/getUsers", obtenerUsuarios);
 router.get("/asistant/getUserById/:id", obtenerDetalleUsuario);
 router.post("/asistant/unSuscribeUser", darDeBajaUsuario);
 router.post("/asistant/aproveRejectDriver", aprobarRechazarConductor);
+router.get("/asistant/getVehiculeReport", reporteVehiculos);
+router.post("/asistant/updateConductor", updateConductorInfo);
+router.post("/asistant/generateDiscounts", generarOferta);
+router.get("/asistant/getDiscounts", getOfertas);
+router.post("/asistant/updateConductor", desactivarOferta);
+
+
+
+
 export default router;

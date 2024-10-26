@@ -126,12 +126,12 @@ export const registerConductor = async (req, res) => {
         // Insertar datos en la tabla Conductores
         const conductorResult = await pool.request()
             .input("ConductorID", sql.Int, ConductorID)
-            .input("Fotografia", sql.VarChar, imageFilename)
-            .input("FotografiaVehiculo", sql.VarChar, vehicleImageFilename)
+            .input("Fotografia", sql.VarChar, Fotografia)
+            .input("FotografiaVehiculo", sql.VarChar, FotografiaVehiculo)
             .input("NumeroPlaca", sql.VarChar, NumeroPlaca)
             .input("MarcaVehiculo", sql.VarChar, MarcaVehiculo)
             .input("AnioVehiculo", sql.Int, AnioVehiculo)
-            .input("CV", sql.VarChar, cvFilename)
+            .input("CV", sql.VarChar, CV)
             .query(`
                 INSERT INTO Conductores (ConductorID, Fotografia, FotografiaVehiculo, NumeroPlaca, MarcaVehiculo, AnioVehiculo, CV)
                 VALUES (@ConductorID, @Fotografia, @FotografiaVehiculo, @NumeroPlaca, @MarcaVehiculo, @AnioVehiculo, @CV);
@@ -294,26 +294,45 @@ export const reportarProblema = async (req, res) => {
     }
 };
 
-
 export const verInformacionUsuario = async (req, res) => {
     const { id } = req.params;
 
     try {
         const pool = await getConnection();
 
+        // Modificación de la consulta SQL para incluir la calificación
         const usuarioInfo = await pool.request()
             .input("UsuarioID", sql.Int, id)
-            .query("SELECT NombreCompleto,Telefono,CorreoElectronico FROM Usuarios WHERE UsuarioID = @UsuarioID");
+            .query(`
+                SELECT 
+                    u.NombreCompleto,
+                    u.Telefono,
+                    u.CorreoElectronico,
+                    COALESCE(AVG(c.Estrellas), 0) AS NumeroEstrellas
+                FROM 
+                    Usuarios u
+                LEFT JOIN 
+                    Calificaciones c ON u.UsuarioID = c.UsuarioID AND c.RolCalificador = 'Conductor'
+                WHERE 
+                    u.UsuarioID = @UsuarioID
+                GROUP BY 
+                    u.NombreCompleto, u.Telefono, u.CorreoElectronico
+            `);
 
-        if (!usuarioInfo.recordset[0]) {
+        // Verificar si el usuario existe
+        if (usuarioInfo.recordset.length === 0) {
             return res.status(404).json({ error: 'Información del usuario no encontrada' });
         }
 
+        // Devolver la información del usuario
         res.status(200).json(usuarioInfo.recordset[0]);
     } catch (error) {
+        console.error('Error al obtener información del usuario:', error); // Imprime el error en la consola
         res.status(500).json({ error: 'Error al obtener información del usuario' });
     }
 };
+
+
 
 export const finalizarViaje = async (req, res) => {
     const { ViajeID, PagoRecibido } = req.body;
@@ -402,7 +421,7 @@ export const listaViajes = async (req, res) => {
             return res.status(404).json({ error: 'No se encontraron viajes.' });
         }
 
-        res.status(200).json(viajes.recordset[0]);
+        res.status(200).json(viajes.recordset);
 
     } catch (error) {
         res.status(500).json({ error: 'Error cargar listado de viajes' });
@@ -440,3 +459,200 @@ export const viajeActivo = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los viajes activos' });
     }
 };
+
+export const updateConductor = async (req, res) => {
+    const {
+        ConductorID,
+        NombreCompleto,
+        Telefono,
+        Edad,
+        DPI,
+        CorreoElectronico,
+        Fotografia,  // Imagen del conductor en base64
+        FotografiaVehiculo,  // Imagen del vehículo en base64 (opcional)
+        Genero,
+        EstadoCivil,
+        Direccion
+    } = req.body;
+
+    // Validar la entrada
+    if (!ConductorID) {
+        return res.status(400).json({ error: 'El ID del conductor es obligatorio' });
+    }
+
+    try {
+        const pool = await getConnection();
+
+        // Verificar si el DPI o correo ya existen para otro usuario
+        const existingUser = await pool
+            .request()
+            .input("DPI", sql.VarChar, DPI)
+            .input("CorreoElectronico", sql.VarChar, CorreoElectronico)
+            .input("ConductorID", sql.Int, ConductorID)
+            .query(`
+                SELECT COUNT(*) AS Count 
+                FROM Usuarios 
+                WHERE (DPI = @DPI OR CorreoElectronico = @CorreoElectronico) 
+                AND UsuarioID != @ConductorID;
+            `);
+
+        if (existingUser.recordset[0].Count > 0) {
+            return res.status(400).json({ error: 'El DPI o correo ya están registrados por otro usuario' });
+        }
+
+        // Crear la carpeta 'uploads' si no existe
+        const uploadDir = path.join(__dirname, '../uploads');
+        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+
+        // Ruta para guardar imágenes de perfil
+        const profileImagesDir = path.join(uploadDir, 'profileImages');
+        if (!fs.existsSync(profileImagesDir)) fs.mkdirSync(profileImagesDir);
+
+        // Ruta para guardar imágenes de vehículo
+        const vehicleImagesDir = path.join(uploadDir, 'vehicleImages');
+        if (!fs.existsSync(vehicleImagesDir)) fs.mkdirSync(vehicleImagesDir);
+
+        let profileImagePath, vehicleImagePath;
+
+        // Guardar nueva fotografía del conductor si se proporciona
+        if (Fotografia) {
+            const base64ImageData = Fotografia.replace(/^data:image\/\w+;base64,/, '');
+            const imageFilename = `${uuidv4()}_profile.png`;
+            profileImagePath = path.join(profileImagesDir, imageFilename);
+            fs.writeFileSync(profileImagePath, base64ImageData, 'base64');
+        }
+
+        // Guardar nueva fotografía del vehículo si se proporciona
+        if (FotografiaVehiculo) {
+            const base64VehicleImageData = FotografiaVehiculo.replace(/^data:image\/\w+;base64,/, '');
+            const vehicleImageFilename = `${uuidv4()}_vehicle.png`;
+            vehicleImagePath = path.join(vehicleImagesDir, vehicleImageFilename);
+            fs.writeFileSync(vehicleImagePath, base64VehicleImageData, 'base64');
+        }
+
+        // Actualizar información en la tabla Usuarios
+        await pool.request()
+            .input("NombreCompleto", sql.VarChar, NombreCompleto)
+            .input("Telefono", sql.VarChar, Telefono)
+            .input("Edad", sql.Int, Edad)
+            .input("DPI", sql.VarChar, DPI)
+            .input("CorreoElectronico", sql.VarChar, CorreoElectronico)
+            .input("Direccion", sql.VarChar, Direccion)
+            .input("Genero", sql.VarChar, Genero)
+            .input("EstadoCivil", sql.VarChar, EstadoCivil)
+            .input("ConductorID", sql.Int, ConductorID)
+            .query(`
+                UPDATE Usuarios
+                SET NombreCompleto = @NombreCompleto, Telefono = @Telefono, Edad = @Edad, 
+                    DPI = @DPI, CorreoElectronico = @CorreoElectronico, Direccion = @Direccion, 
+                    Genero = @Genero, EstadoCivil = @EstadoCivil
+                WHERE UsuarioID = @ConductorID;
+            `);
+
+        // Actualizar información en la tabla Conductores y establecer el estado como 'Pendiente'
+        let updateQuery = 'UPDATE Conductores SET ';
+        const queryParams = [];
+
+        // Añadir los cambios de imagen si se proporcionaron
+        if (profileImagePath) {
+            updateQuery += 'Fotografia = @Fotografia, ';
+            queryParams.push({ name: 'Fotografia', value: profileImagePath });
+        }
+        if (vehicleImagePath) {
+            updateQuery += 'FotografiaVehiculo = @FotografiaVehiculo, ';
+            queryParams.push({ name: 'FotografiaVehiculo', value: vehicleImagePath });
+        }
+
+        // Añadir el cambio de estado
+        updateQuery += 'Estatus = @Estatus, '; // Cambiar estado a Pendiente
+        queryParams.push({ name: 'Estatus', value: 'Pendiente' });
+
+        // Remover la última coma sobrante
+        updateQuery = updateQuery.slice(0, -2) + ' WHERE ConductorID = @ConductorID;';
+
+        const request = pool.request();
+        queryParams.forEach(param => request.input(param.name, sql.VarChar, param.value));
+        request.input("ConductorID", sql.Int, ConductorID);
+
+        // Solo ejecutar la actualización si se modificaron imágenes o se va a cambiar el estado
+        if (queryParams.length > 0) {
+            await request.query(updateQuery);
+        }
+
+        res.status(200).json({ message: 'Datos del conductor actualizados con éxito, estado cambiado a Pendiente' });
+    } catch (error) {
+        console.error('Error al actualizar los datos del conductor:', error);
+        res.status(500).json({ error: 'Error al actualizar los datos del conductor' });
+    }
+};
+
+
+export const calificarUsuario = async (req, res) => {
+    const { viajeID, usuarioID, conductorID, estrellas, comentario } = req.body;
+    try {
+        const pool = await getConnection();
+
+        // Insertar la calificación en la tabla Calificaciones
+        await pool.request()
+            .input("ViajeID", sql.Int, viajeID)
+            .input("UsuarioID", sql.Int, usuarioID)
+            .input("ConductorID", sql.Int, conductorID)
+            .input("Estrellas", sql.Int, estrellas)
+            .input("Comentario", sql.NVarChar(255), comentario)
+            .input("RolCalificador", sql.NVarChar(20), 'Conductor') // Nueva entrada para el rol
+            .query(`
+                INSERT INTO Calificaciones (ViajeID, UsuarioID, ConductorID, Estrellas, Comentario, RolCalificador)
+                VALUES (@ViajeID, @UsuarioID, @ConductorID, @Estrellas, @Comentario, @RolCalificador);
+            `);
+
+        // Retornar respuesta de éxito
+        res.status(201).json({ message: 'Calificación registrada exitosamente.' });
+    } catch (error) {
+        console.error('Error al calificar al usuario:', error);
+        res.status(500).json({ error: 'Error al calificar al usuario' });
+    }
+};
+
+
+export const obtenerResumenGanancias = async (req, res) => {
+    const { conductorID, fechaInicio, fechaFin } = req.body;
+
+    try {
+        const pool = await getConnection();
+
+        // Consulta para obtener el resumen de ganancias
+        const resultado = await pool.request()
+            .input("ConductorID", sql.Int, conductorID)
+            .input("FechaInicio", sql.DateTime, fechaInicio)
+            .input("FechaFin", sql.DateTime, fechaFin)
+            .query(`
+                SELECT 
+                    CONVERT(DATE, FechaHoraFin) AS Fecha,
+                    COUNT(*) AS NumeroViajes,
+                    SUM(Tarifa) AS TotalTarifa,
+                    SUM(Tarifa * 0.10) AS TotalComision,
+                    SUM(Tarifa * 0.90) AS GananciaNeta
+                FROM 
+                    Viajes
+                WHERE 
+                    ConductorID = @ConductorID 
+                    AND Estado = 'Finalizado' 
+                    AND FechaHoraFin BETWEEN @FechaInicio AND @FechaFin
+                GROUP BY 
+                    CONVERT(DATE, FechaHoraFin)
+                ORDER BY 
+                    Fecha;
+            `);
+
+        // Retornar el resultado
+        res.status(200).json(resultado.recordset);
+    } catch (error) {
+        console.error('Error al obtener el resumen de ganancias:', error);
+        res.status(500).json({ error: 'Error al obtener el resumen de ganancias' });
+    }
+};
+
+
+
+
+

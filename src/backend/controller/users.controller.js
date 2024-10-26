@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from 'url';
+import { userInfo } from "os";
 
 // Definir __dirname manualmente para módulos ES6
 const __filename = fileURLToPath(import.meta.url);
@@ -95,15 +96,11 @@ export const registerUsuario = async (req, res) => {
     }
 };
 export const getInfoConductor = async (req, res) => {
-    const { id } = req.params;  // Recibir el ID desde los parámetros de la URL
+    const { id } = req.params;  
 
     try {
         const pool = await getConnection();
-  //      (SELECT COUNT(*) FROM Viajes V WHERE V.ConductorID = C.ConductorID) AS TotalViajes,                   
-    //    (SELECT STRING_AGG(Comentario, '; ') FROM Comentarios WHERE ConductorID = C.ConductorID) AS Comentarios
-  
-        // (SELECT AVG(Calificacion) FROM Calificaciones WHERE ConductorID = C.ConductorID) AS PromedioCalificacion,
-        // Realizar la consulta para obtener los detalles completos del conductor por ID
+
         const conductorDetalles = await pool.request()
             .input("ConductorID", sql.Int, id)
             .query(`
@@ -122,10 +119,8 @@ export const getInfoConductor = async (req, res) => {
             return res.status(404).json({ message: 'Conductor no encontrado.' });
         }
 
-        // Extraer datos del conductor
         const conductor = conductorDetalles.recordset[0];
 
-        // Definir rutas de los archivos
         const uploadDir = path.join(__dirname, '../uploads');       
         const vehicleImagePath = path.join(uploadDir, 'vehicleImages', conductor.FotografiaVehiculo);
 
@@ -137,7 +132,7 @@ export const getInfoConductor = async (req, res) => {
         // Retornar los detalles completos del conductor, incluyendo archivos en base64
         res.status(200).json({
             ...conductor,
-            FotografiaVehiculo: vehicleImageBase64
+            FotografiaVehiculo: conductor.FotografiaVehiculo
         });
 
     } catch (error) {
@@ -343,5 +338,181 @@ export const nuevoViaje = async (req, res) => {
     } catch (error) {
         console.error('Error al obtener los viajes pendientes o aceptados', error);
         res.status(500).json({ error: 'Error al obtener los viajes pendientes o aceptados' });
+    }
+};
+
+export const calificarConductor = async (req, res) => {
+    const { viajeID, usuarioID, conductorID, estrellas, comentario } = req.body;
+
+   
+    try {
+        const pool = await getConnection();
+
+        // Verificar que el viaje haya terminado
+        const viaje = await pool.request()
+            .input("ViajeID", sql.Int, viajeID)
+            .query("SELECT Estado FROM Viajes WHERE ViajeID = @ViajeID");
+
+        if (viaje.recordset[0]?.Estado !== 'Finalizado') {
+            return res.status(400).json({ error: 'El viaje no ha terminado.' });
+        }
+
+        // Insertar la calificación en la tabla Calificaciones
+        await pool.request()
+            .input("ViajeID", sql.Int, viajeID)
+            .input("UsuarioID", sql.Int, usuarioID)
+            .input("ConductorID", sql.Int, conductorID)
+            .input("Estrellas", sql.Int, estrellas)
+            .input("Comentario", sql.NVarChar(255), comentario)
+            .input("RolCalificador", sql.NVarChar(20), 'Usuario') // Nueva entrada para el rol
+            .query(`
+                INSERT INTO Calificaciones (ViajeID, UsuarioID, ConductorID, Estrellas, Comentario, RolCalificador)
+                VALUES (@ViajeID, @UsuarioID, @ConductorID, @Estrellas, @Comentario, @RolCalificador);
+            `);
+
+        // Actualizar calificación en la tabla de conductores
+        const resultadoCalificacion = await pool.request()
+            .input("ConductorID", sql.Int, conductorID)
+            .query(`
+                SELECT AVG(Estrellas) as NuevaCalificacion, COUNT(*) as NumeroCalificaciones
+                FROM Calificaciones
+                WHERE ConductorID = @ConductorID;
+            `);
+
+        const nuevaCalificacion = resultadoCalificacion.recordset[0].NuevaCalificacion || 0; // Manejar el caso donde no haya calificaciones
+        const numeroCalificaciones = resultadoCalificacion.recordset[0].NumeroCalificaciones || 0; // Manejar el caso donde no haya calificaciones
+
+        await pool.request()
+            .input("ConductorID", sql.Int, conductorID)
+            .input("NuevaCalificacion", sql.Decimal(3, 2), nuevaCalificacion)
+            .input("NumeroViajes", sql.Int, numeroCalificaciones)
+            .query(`
+                UPDATE Conductores 
+                SET Calificacion = @NuevaCalificacion, NumeroViajes = @NumeroViajes
+                WHERE ConductorID = @ConductorID;
+            `);
+
+        res.status(201).json({ message: 'Calificación registrada exitosamente.' });
+
+    } catch (error) {
+        console.error('Error al calificar al conductor:', error);
+        res.status(500).json({ error: 'Error al calificar al conductor' });
+    }
+};
+
+
+export const guardarUbicacion = async (req, res) => {
+    const { UsuarioID, NombreUbicacion, Zona } = req.body;
+
+    try {
+        const pool = await getConnection();
+
+        await pool.request()
+            .input("UsuarioID", sql.Int, UsuarioID)
+            .input("NombreUbicacion", sql.NVarChar(100), NombreUbicacion)
+            .input("Zona", sql.NVarChar(50), Zona)
+            .query(`
+                INSERT INTO UbicacionesGuardadas (UsuarioID, NombreUbicacion, Zona)
+                VALUES (@UsuarioID, @NombreUbicacion, @Zona);
+            `);
+
+        res.status(201).json({ message: 'Ubicación guardada exitosamente.' });
+
+    } catch (error) {
+        console.error('Error al guardar ubicación', error);
+        res.status(500).json({ error: 'Error al guardar ubicación' });
+    }
+};
+
+export const listarUbicacionesGuardadas = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const pool = await getConnection();
+        const ubicaciones = await pool.request()
+            .input("UsuarioID", sql.Int, id)
+            .query("SELECT * FROM UbicacionesGuardadas WHERE UsuarioID = @UsuarioID");
+
+        res.status(200).json(ubicaciones.recordset);
+
+    } catch (error) {
+        console.error('Error al obtener ubicaciones guardadas', error);
+        res.status(500).json({ error: 'Error al obtener ubicaciones guardadas' });
+    }
+};
+
+export const verInformacionUsuario = async (req, res) => {
+    const { id } = req.params;
+    console.log(id)
+    try {
+        const pool = await getConnection();
+
+        const usuarioInfo = await pool.request()
+            .input("UsuarioID", sql.Int, id)
+            .query("SELECT NombreCompleto, FechaNacimiento, DPI, Edad, Genero, EstadoCivil, CorreoElectronico, Telefono, Direccion FROM Usuarios WHERE UsuarioID = @UsuarioID");
+
+        if (!usuarioInfo.recordset[0]) {
+            return res.status(404).json({ error: 'Información del usuario no encontrada' });
+        }
+
+        res.status(200).json(usuarioInfo.recordset[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener información del usuario' });
+    }
+};
+
+export const actualizarInformacionUsuario = async (req, res) => {
+    const { id } = req.params; // Obtén el id del usuario de los parámetros de la solicitud
+    const {
+        NombreCompleto,
+        FechaNacimiento,
+        DPI,
+        Edad,
+        Genero,
+        EstadoCivil,
+        CorreoElectronico,
+        Telefono,
+        Direccion
+    } = req.body; // Obtén la información del cuerpo de la solicitud
+
+    try {
+        const pool = await getConnection();
+
+        // Prepara la consulta de actualización
+        const result = await pool.request()
+            .input("UsuarioID", sql.Int, id)
+            .input("NombreCompleto", sql.NVarChar, NombreCompleto)
+            .input("FechaNacimiento", sql.Date, FechaNacimiento)
+            .input("DPI", sql.NVarChar, DPI)
+            .input("Edad", sql.Int, Edad)
+            .input("Genero", sql.NVarChar, Genero)
+            .input("EstadoCivil", sql.NVarChar, EstadoCivil)
+            .input("CorreoElectronico", sql.NVarChar, CorreoElectronico)
+            .input("Telefono", sql.NVarChar, Telefono)
+            .input("Direccion", sql.NVarChar, Direccion)
+            .query(`
+                UPDATE Usuarios
+                SET 
+                    NombreCompleto = @NombreCompleto,
+                    FechaNacimiento = @FechaNacimiento,
+                    DPI = @DPI,
+                    Edad = @Edad,
+                    Genero = @Genero,
+                    EstadoCivil = @EstadoCivil,
+                    CorreoElectronico = @CorreoElectronico,
+                    Telefono = @Telefono,
+                    Direccion = @Direccion
+                WHERE UsuarioID = @UsuarioID
+            `);
+
+        // Comprueba si la actualización afectó a alguna fila
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado o no se realizaron cambios' });
+        }
+
+        res.status(200).json({ mensaje: 'Información del usuario actualizada correctamente' });
+    } catch (error) {
+        console.error(error); // Para ayudar con la depuración
+        res.status(500).json({ error: 'Error al actualizar la información del usuario' });
     }
 };

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ViajesAcordeon from './viajesAcordeon';
 
 const DetalleConductor = () => {
     const { id } = useParams();
     const [conductor, setConductor] = useState(null);
+    const [listTrip, setListTrip] = useState([]);
     const [error, setError] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [comentario, setComentario] = useState('');
@@ -13,17 +15,39 @@ const DetalleConductor = () => {
     useEffect(() => {
         const fetchConductor = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/asistant/getDriverById/${id}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch');
-                }
+                const response = await fetch(`http://34.173.74.193:5000/api/asistant/getDriverById/${id}`);
                 const data = await response.json();
+                if (!response.ok) {
+                    if(data.message){
+                        throw new Error(data.message);
+                    }else{
+                        throw new Error('Failed to fetch');
+                    }
+                }
                 setConductor(data);
             } catch (err) {
                 setError(err.message);
             }
         };
 
+        const fetchTripList = async () => {
+            try {
+                const response = await fetch(`http://34.173.74.193:5000/api/general/getTripList`);
+                const data = await response.json();
+                if (!response.ok) {
+                    if(data.message){
+                        throw new Error(data.message);
+                    }else{
+                        throw new Error('Failed to fetch');
+                    }
+                }
+                setListTrip(data);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+
+        fetchTripList();
         fetchConductor();
     }, [id]);
 
@@ -36,7 +60,8 @@ const DetalleConductor = () => {
             return;
         }
         try {
-            const response = await fetch(`http://localhost:8080/api/asistant/unSuscribeUser`, {
+            let asistente = localStorage.getItem("userId");
+            const response = await fetch(`http://34.173.74.193:5000/api/asistant/unSuscribeUser`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,7 +69,7 @@ const DetalleConductor = () => {
                 body: JSON.stringify({
                     id: id,
                     motivo: comentario,
-                    asistenteNombre: "alguien"
+                    asistenteNombre: `Asistente con id ${asistente}`
                 }),
             });
 
@@ -88,6 +113,9 @@ const DetalleConductor = () => {
                         <div className='col'>
                             <div className='d-flex justify-content-center'><img src={`data:image/jpeg;base64,${conductor.FotografiaVehiculo}`} alt="Fotografia del Vehículo" className="img-fluid" style={{ height: "200px" }} /></div>
                         </div>
+                    </div>
+                    <div>
+                        <ViajesAcordeon viajes={listTrip} tipo={"conductor"} id_filtro={id}/>
                     </div>
                     <div className="mt-4">
                         <object data={`data:application/pdf;base64,${conductor.CV}`} type="application/pdf" width="100%" height="300">

@@ -18,6 +18,8 @@ import PedirViaje from "./views/usuario/pedirViaje";
 import VerConductor from "./views/usuario/verConductor";
 import ReportarProblema from "./views/usuario/reportarProblema";
 import CancelarViaje from "./views/usuario/cancelarViaje";
+import HomeAdministrador from "./views/administrador/homeAdmin";
+import EditarUsuario from "./views/usuario/editarUsuario";
 
 function LayoutConductor() {
   return <HeaderConductor></HeaderConductor>;
@@ -37,6 +39,7 @@ function App() {
     <div className="container-fluid">
       <Routes>
         <Route path="/" element={<Login />}></Route>
+        <Route path="/administrador" element={<HomeAdministrador />}></Route>
         <Route
           path="/cambioContrasenia/:userId"
           element={<CambiarContrasenia />}
@@ -57,12 +60,16 @@ function App() {
           <Route path="solicitudes" element={<VisorSolicitudEmpleos />} />
           <Route path="solicitudes/:id" element={<DetalleSolicitud />} />
         </Route>
-        <Route path="/registro-usuario" element={<RegistroUsuario />} /> 
+        <Route path="/registro-usuario" element={<RegistroUsuario />} />
         <Route path="/usuario/home" element={<HomeUsuario />} />
         <Route path="/usuario/pedirviaje" element={<PedirViaje />} />
         <Route path="/usuario/verconductor" element={<VerConductor />} />
-        <Route path="/usuario/reportarproblema" element={<ReportarProblema />} />
+        <Route
+          path="/usuario/reportarproblema"
+          element={<ReportarProblema />}
+        />
         <Route path="/usuario/cancelarviaje" element={<CancelarViaje />} />
+        <Route path="/usuario/editarusuario" element={<EditarUsuario />} />
       </Routes>
     </div>
   );
