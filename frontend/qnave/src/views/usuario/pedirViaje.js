@@ -73,7 +73,7 @@ const PedirViaje = () => {
 
   const verificarViajePendiente = async (userId) => {
     try {
-      const response = await fetch(`http://34.173.74.193:5000/api/users/new_trip/${userId}`);
+      const response = await fetch(`http://34.30.112.78:5000/api/users/new_trip/${userId}`);
       if (response.ok) {
         const data = await response.json();
         if (data.length > 0) {
@@ -111,7 +111,7 @@ const PedirViaje = () => {
     };
 
     try {
-      const response = await fetch('http://34.173.74.193:5000/api/users/request_trip', {
+      const response = await fetch('http://34.30.112.78:5000/api/users/request_trip', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -20,7 +20,7 @@ const CancelarViaje = () => {
   useEffect(() => {
     const verificarViajeActivo = async () => {
       try {
-        const response = await fetch(`http://34.173.74.193:5000/api/users/active_trip/${idUsuario}`);
+        const response = await fetch(`http://34.30.112.78:5000/api/users/active_trip/${idUsuario}`);
         if (response.ok) {
           const data = await response.json();
           if (data.length > 0) {
@@ -59,7 +59,7 @@ const CancelarViaje = () => {
     };
 
     try {
-      const response = await fetch('http://34.173.74.193:5000/api/users/cancel_trip', {
+      const response = await fetch('http://34.30.112.78:5000/api/users/cancel_trip', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -19,14 +19,14 @@ const ReportarProblema = () => {
   useEffect(() => {
     const verificarViajeActivo = async () => {
       try {
-        const response = await fetch(`http://34.173.74.193:5000/api/users/active_trip/${idUsuario}`);
+        const response = await fetch(`http://34.30.112.78:5000/api/users/active_trip/${idUsuario}`);
         if (response.ok) {
           const data = await response.json();
           if (data.length > 0) {
             setViaje(data[0]);
             setViajeActivo(true);
             const idConductor = data[0].idConductor;
-            const responseConductor = await fetch(`http://34.173.74.193:5000/api/users/driver_information/${idConductor}`);
+            const responseConductor = await fetch(`http://34.30.112.78:5000/api/users/driver_information/${idConductor}`);
             if (responseConductor.ok) {
               const dataConductor = await responseConductor.json();
               setConductor(dataConductor);
@@ -70,7 +70,7 @@ const ReportarProblema = () => {
     };
 
     try {
-      const response = await fetch('http://34.173.74.193:5000/api/users/report_problem', {
+      const response = await fetch('http://34.30.112.78:5000/api/users/report_problem', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

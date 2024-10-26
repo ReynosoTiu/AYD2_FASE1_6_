@@ -13,12 +13,12 @@ const VerConductor = () => {
   useEffect(() => {
     const fetchConductorInfo = async () => {
       try {
-        const response = await fetch(`http://34.173.74.193:5000/api/users/active_trip/${idUsuario}`);
+        const response = await fetch(`http://34.30.112.78:5000/api/users/active_trip/${idUsuario}`);
         if (response.ok) {
           const data = await response.json();
           if (data.length > 0) {
             const idConductor = data[0].idConductor;
-            const responseConductor = await fetch(`http://34.173.74.193:5000/api/users/driver_information/${idConductor}`);
+            const responseConductor = await fetch(`http://34.30.112.78:5000/api/users/driver_information/${idConductor}`);
             if (responseConductor.ok) {
               const dataConductor = await responseConductor.json();
               setConductor(dataConductor);

@@ -10,7 +10,7 @@ function HomeUsuario() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await fetch(`http://34.173.74.193:5000/api/driver/getUserInfo/${userId}`);
+        const response = await fetch(`http://34.30.112.78:5000/api/driver/getUserInfo/${userId}`);
         const data = await response.json();
 
         if (response.ok) {

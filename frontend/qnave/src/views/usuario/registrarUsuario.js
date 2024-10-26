@@ -116,7 +116,7 @@ const RegistroUsuario = () => {
     };
   
     try {
-      const response = await fetch("http://34.173.74.193:5000/api/users/register", {
+      const response = await fetch("http://34.30.112.78:5000/api/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

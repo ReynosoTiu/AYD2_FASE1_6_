@@ -3,9 +3,8 @@ import { Form, Button, Container, Card, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HeaderUsuario from "../../components/header_usuario/headerUsuario";
 
-//const idUsuario = localStorage.getItem('userId');
-const idUsuario = 2;
-const EditarUsuario = ({ userId }) => { // Asumiendo que userId se pasa como prop
+const EditarUsuario = () => { 
+    const userId = localStorage.getItem('userId');
     const [errores, setErrores] = useState({});
     const [formData, setFormData] = useState({
         NombreCompleto: '',
@@ -19,43 +18,12 @@ const EditarUsuario = ({ userId }) => { // Asumiendo que userId se pasa como pro
         Direccion: ''
     });
 
-    // Validar los campos
-    const validarCampos = () => {
-        const {
-            NombreCompleto,
-            FechaNacimiento,
-            DPI,
-            Edad,
-            Genero,
-            EstadoCivil,
-            Correo,
-            Telefono,
-            Direccion,
-        } = formData;
-
-        const nuevosErrores = {};
-
-        if (!NombreCompleto)
-        nuevosErrores.NombreCompleto = "El nombre es obligatorio.";
-        if (!FechaNacimiento) nuevosErrores.FechaNacimiento = "La fecha de nacimiento es obligatoria.";
-        if (!DPI) nuevosErrores.DPI = "El dpi es obligatorio";
-        if (!Edad) nuevosErrores.Edad = "La edad es obligatorio";
-        if (!Genero) nuevosErrores.Genero = "El genero es obligatorio";
-        if (!EstadoCivil) nuevosErrores.EstadoCivil = "El estado civil es obligatorio";
-        if (!Correo.includes("@")) nuevosErrores.Correo = "Correo inválido.";
-        if (Telefono.length !== 8) nuevosErrores.Telefono = "Teléfono inválido.";
-        if (!Direccion) nuevosErrores.Direccion = "La direccion es obligatoria";
-        
-        setErrores(nuevosErrores);
-        return Object.keys(nuevosErrores).length === 0;
-    };
-
     const [alerta, setAlerta] = useState({ mensaje: "", tipo: "" });
 
     useEffect(() => {
         const obtenerInformacionUsuario = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/users/getUserInfo/${idUsuario}`); // Cambia 'tu-api-url' por la URL real de tu API
+                const response = await fetch(`http://34.30.112.78:5000/api/users/getUserInfo/${userId}`);
                 if (!response.ok) {
                     throw new Error('No se pudo obtener la información del usuario');
                 }
@@ -72,17 +40,37 @@ const EditarUsuario = ({ userId }) => { // Asumiendo que userId se pasa como pro
         obtenerInformacionUsuario();
     }, [userId]);
 
+    const validarCampos = () => {
+        const nuevosErrores = {};
+        const { NombreCompleto, FechaNacimiento, DPI, Edad, Genero, EstadoCivil, CorreoElectronico, Telefono, Direccion } = formData;
+
+        if (!NombreCompleto) nuevosErrores.NombreCompleto = "El nombre es obligatorio.";
+        if (!FechaNacimiento) nuevosErrores.FechaNacimiento = "La fecha de nacimiento es obligatoria.";
+        if (!DPI) nuevosErrores.DPI = "El DPI es obligatorio.";
+        if (!Edad) nuevosErrores.Edad = "La edad es obligatoria.";
+        if (!Genero) nuevosErrores.Genero = "El género es obligatorio.";
+        if (!EstadoCivil) nuevosErrores.EstadoCivil = "El estado civil es obligatorio.";
+        if (!CorreoElectronico.includes("@")) nuevosErrores.CorreoElectronico = "Correo inválido.";
+        if (Telefono.length !== 8) nuevosErrores.Telefono = "Teléfono inválido.";
+        if (!Direccion) nuevosErrores.Direccion = "La dirección es obligatoria.";
+
+        setErrores(nuevosErrores);
+        return Object.keys(nuevosErrores).length === 0;
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Previene el comportamiento predeterminado del formulario
+        e.preventDefault();
+
+        if (!validarCampos()) return; // Validar antes de enviar
 
         try {
-            const response = await fetch(`http://localhost:5000/users/getUserInfo/${userId}`, {
-                method: 'PUT', // Cambia el método según lo que necesites (PUT o PATCH)
+            const response = await fetch(`http://34.30.112.78:5000/api/users/updateUser/${userId}`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -94,7 +82,6 @@ const EditarUsuario = ({ userId }) => { // Asumiendo que userId se pasa como pro
             }
 
             setAlerta({ mensaje: "Información actualizada con éxito", tipo: "success" });
-            // Opcional: puedes redirigir o limpiar el formulario aquí
 
         } catch (error) {
             setAlerta({ mensaje: error.message, tipo: "danger" });
@@ -122,6 +109,9 @@ const EditarUsuario = ({ userId }) => { // Asumiendo que userId se pasa como pro
                                 onChange={handleInputChange}
                                 isInvalid={!!errores.NombreCompleto}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {errores.NombreCompleto}
+                            </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group controlId="fechaNacimiento" className="mb-3">
                             <Form.Label>Fecha de Nacimiento</Form.Label>
@@ -132,6 +122,9 @@ const EditarUsuario = ({ userId }) => { // Asumiendo que userId se pasa como pro
                                 onChange={handleInputChange}
                                 isInvalid={!!errores.FechaNacimiento}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {errores.FechaNacimiento}
+                            </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group controlId="dpi" className="mb-3">
                             <Form.Label>DPI</Form.Label>
@@ -142,6 +135,9 @@ const EditarUsuario = ({ userId }) => { // Asumiendo que userId se pasa como pro
                                 onChange={handleInputChange}
                                 isInvalid={!!errores.DPI}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {errores.DPI}
+                            </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group controlId="edad" className="mb-3">
                             <Form.Label>Edad</Form.Label>
@@ -152,6 +148,9 @@ const EditarUsuario = ({ userId }) => { // Asumiendo que userId se pasa como pro
                                 onChange={handleInputChange}
                                 isInvalid={!!errores.Edad}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {errores.Edad}
+                            </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group className="mb-3">
                         <Form.Label>Género</Form.Label>
@@ -196,6 +195,9 @@ const EditarUsuario = ({ userId }) => { // Asumiendo que userId se pasa como pro
                                 onChange={handleInputChange}
                                 isInvalid={!!errores.CorreoElectronico}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {errores.CorreoElectronico}
+                            </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group controlId="telefono" className="mb-3">
                             <Form.Label>Teléfono</Form.Label>
@@ -206,6 +208,9 @@ const EditarUsuario = ({ userId }) => { // Asumiendo que userId se pasa como pro
                                 onChange={handleInputChange}
                                 isInvalid={!!errores.Telefono}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {errores.Telefono}
+                            </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group controlId="direccion" className="mb-3">
                             <Form.Label>Dirección</Form.Label>
@@ -216,11 +221,11 @@ const EditarUsuario = ({ userId }) => { // Asumiendo que userId se pasa como pro
                                 onChange={handleInputChange}
                                 isInvalid={!!errores.Direccion}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {errores.Direccion}
+                            </Form.Control.Feedback>
                         </Form.Group>
-                        <div className="text-center">
-                            <Button variant="primary" type="submit">Guardar Cambios</Button>
-                            <Button variant="secondary" className="ms-2">Cancelar</Button>
-                        </div>
+                        <Button variant="primary" type="submit" className="w-100">Actualizar Usuario</Button>
                     </Form>
                 </Card>
             </Container>

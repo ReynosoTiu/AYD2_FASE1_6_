@@ -45,7 +45,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "http://34.173.74.193:5000/api/general/logIn",
+        "http://34.30.112.78:5000/api/general/logIn",
         {
           method: "POST",
           headers: {
