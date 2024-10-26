@@ -41,6 +41,16 @@ function HeaderAsistente() {
                   <strong>Aceptar solicitudes</strong>
                 </Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link active" to="/asistente/promociones">
+                  <strong>Promociones</strong>
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link active" to="/asistente/reporte">
+                  <strong>Reporte de vehículos</strong>
+                </Link>
+              </li>
             </ul>
             <ul className="navbar-nav ms-auto" onClick={cleanStorage}>
               <li className="nav-item">

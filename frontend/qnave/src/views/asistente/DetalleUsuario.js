@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ViajesAcordeon from './viajesAcordeon';
+import ViajesAcordeon from './ViajesAcordeon';
 
 const DetalleUsuario = () => {
     const { id } = useParams();
@@ -15,7 +15,7 @@ const DetalleUsuario = () => {
     useEffect(() => {
         const fetchUsuario = async () => {
             try {
-                const response = await fetch(`http://34.173.74.193:5000/api/asistant/getUserById/${id}`);
+                const response = await fetch(`http://34.30.112.78:5000/api/asistant/getUserById/${id}`);
                 const data = await response.json();
                 if (!response.ok) {
                     if(data.message){
@@ -32,7 +32,7 @@ const DetalleUsuario = () => {
 
         const fetchTripList = async () => {
             try {
-                const response = await fetch(`http://34.173.74.193:5000/api/general/getTripList`);
+                const response = await fetch(`http://34.30.112.78:5000/api/general/getTripList`);
                 const data = await response.json();
                 if (!response.ok) {
                     if(data.message){
@@ -61,7 +61,7 @@ const DetalleUsuario = () => {
         }
         try {
             let asistente = localStorage.getItem("userId");
-            const response = await fetch(`http://34.173.74.193:5000/api/asistant/unSuscribeUser`, {
+            const response = await fetch(`http://34.30.112.78:5000/api/asistant/unSuscribeUser`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

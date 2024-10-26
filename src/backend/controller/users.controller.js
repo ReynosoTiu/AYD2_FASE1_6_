@@ -353,7 +353,8 @@ export const calificarConductor = async (req, res) => {
             .input("ViajeID", sql.Int, viajeID)
             .query("SELECT Estado FROM Viajes WHERE ViajeID = @ViajeID");
 
-        if (viaje.recordset[0]?.Estado !== 'Finalizado') {
+            console.log(viaje.recordset[0]?.Estado)
+        if (viaje.recordset[0]?.Estado !== 'Finalizado' && viaje.recordset[0]?.Estado !== 'Cancelado') {
             return res.status(400).json({ error: 'El viaje no ha terminado.' });
         }
 
