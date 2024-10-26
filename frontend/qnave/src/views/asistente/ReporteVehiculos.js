@@ -1,11 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
+import API_URL from "../../config/config";
 
 function ReporteVehiculos() {
     const [vehiculos, setVehiculos] = useState([]);
 
     useEffect(() => {
-        fetch('http://34.30.112.78:5000/api/asistant/getVehiculeReport')
+        fetch(`${API_URL}/asistant/getVehiculeReport`)
             .then(response => response.json())
             .then(data => setVehiculos(data))
             .catch(error => console.error('Error:', error));

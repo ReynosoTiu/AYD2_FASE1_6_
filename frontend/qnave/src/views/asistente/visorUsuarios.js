@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
+import API_URL from '../../config/config';
 
 function VisorUsuarios() {
     const [usuarios, setUsuarios] = useState([]);
@@ -11,7 +12,7 @@ function VisorUsuarios() {
         const fetchConductores = async () => {
             setCargando(true);
             try {
-                const response = await fetch('http://334.30.112.78:5000/api/asistant/getUsers');
+                const response = await fetch(`${API_URL}/asistant/getUsers`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
+import API_URL from "../../config/config";
 
 function VisorConductores() {
     const [conductores, setConductores] = useState([]);
@@ -11,7 +12,7 @@ function VisorConductores() {
         const fetchConductores = async () => {
             setCargando(true);
             try {
-                const response = await fetch('http://34.30.112.78:5000/api/asistant/getDriversList');
+                const response = await fetch(`${API_URL}/asistant/getDriversList`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

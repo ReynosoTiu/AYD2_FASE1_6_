@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
+import API_URL from '../../config/config';
 
 function VisorSolicitudEmpleos() {
     const [solicitudes, setSolicitudes] = useState([]);
@@ -11,7 +12,7 @@ function VisorSolicitudEmpleos() {
         const fetchSolicitudes = async () => {
             setCargando(true);
             try {
-                const response = await fetch('http://334.30.112.78:5000/api/asistant/getDriverPendingList');
+                const response = await fetch(`${API_URL}/asistant/getDriverPendingList`);
                 const data = await response.json();
                 if (!response.ok) {
                     throw new Error(data.message);

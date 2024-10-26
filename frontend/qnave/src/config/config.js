@@ -1,3 +1,3 @@
-const API_URL = "http://34.30.112.78:5000/api";
+const API_URL = "${API_URL}";
 
 export default API_URL;
