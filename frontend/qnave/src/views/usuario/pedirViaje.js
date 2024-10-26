@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Card, Form, Button, Row, Col, Modal } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HeaderUsuario from "../../components/header_usuario/headerUsuario";
+import API_URL from "../../config/config";
 
 const puntoPartidaA = [
   { id: 1, title: 'Zona 1' },
@@ -73,7 +74,7 @@ const PedirViaje = () => {
 
   const verificarViajePendiente = async (userId) => {
     try {
-      const response = await fetch(`http://34.30.112.78:5000/api/users/new_trip/${userId}`);
+      const response = await fetch(${API_URL}`/users/new_trip/${userId}`);
       if (response.ok) {
         const data = await response.json();
         if (data.length > 0) {
@@ -111,7 +112,7 @@ const PedirViaje = () => {
     };
 
     try {
-      const response = await fetch('http://34.30.112.78:5000/api/users/request_trip', {
+      const response = await fetch(`${API_URL}/users/request_trip`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Card, Form, Button, Modal, Row, Col, Spinner } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HeaderUsuario from '../../components/header_usuario/headerUsuario';
+import API_URL from "../../config/config";
 
 const CancelarViaje = () => {
   const [showModal, setShowModal] = useState(false);
@@ -20,7 +21,7 @@ const CancelarViaje = () => {
   useEffect(() => {
     const verificarViajeActivo = async () => {
       try {
-        const response = await fetch(`http://34.30.112.78:5000/api/users/active_trip/${idUsuario}`);
+        const response = await fetch(`${API_URL}/users/active_trip/${idUsuario}`);
         if (response.ok) {
           const data = await response.json();
           if (data.length > 0) {
@@ -59,7 +60,7 @@ const CancelarViaje = () => {
     };
 
     try {
-      const response = await fetch('http://34.30.112.78:5000/api/users/cancel_trip', {
+      const response = await fetch(`${API_URL}/users/cancel_trip`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

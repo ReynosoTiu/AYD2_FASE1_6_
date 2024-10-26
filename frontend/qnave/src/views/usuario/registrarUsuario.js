@@ -8,6 +8,7 @@ import {
   Alert,
   Card,
 } from "react-bootstrap";
+import API_URL from "../../config/config";
 
 const RegistroUsuario = () => {
   const [formData, setFormData] = useState({
@@ -116,7 +117,7 @@ const RegistroUsuario = () => {
     };
   
     try {
-      const response = await fetch("http://34.30.112.78:5000/api/users/register", {
+      const response = await fetch(`${API_URL}/users/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

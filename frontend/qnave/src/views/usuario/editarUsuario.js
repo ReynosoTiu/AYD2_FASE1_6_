@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Button, Container, Card, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HeaderUsuario from "../../components/header_usuario/headerUsuario";
+import API_URL from "../../config/config";
 
 const EditarUsuario = () => { 
     const userId = localStorage.getItem('userId');
@@ -23,7 +24,7 @@ const EditarUsuario = () => {
     useEffect(() => {
         const obtenerInformacionUsuario = async () => {
             try {
-                const response = await fetch(`http://34.30.112.78:5000/api/users/getUserInfo/${userId}`);
+                const response = await fetch(`${API_URL}/users/getUserInfo/${userId}`);
                 if (!response.ok) {
                     throw new Error('No se pudo obtener la información del usuario');
                 }
@@ -69,7 +70,7 @@ const EditarUsuario = () => {
         if (!validarCampos()) return; // Validar antes de enviar
 
         try {
-            const response = await fetch(`http://34.30.112.78:5000/api/users/updateUser/${userId}`, {
+            const response = await fetch(`${API_URL}/users/updateUser/${userId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
