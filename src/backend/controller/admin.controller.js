@@ -147,8 +147,6 @@ export const obtenerAsistentes = async (req, res) => {
     }
 };
 
-
-// Endpoint para obtener nombre y calificación de todos los usuarios
 export const obtenerUsuariosYCalificaciones = async (req, res) => {
     try {
         const pool = await getConnection();
@@ -156,23 +154,24 @@ export const obtenerUsuariosYCalificaciones = async (req, res) => {
         const usuariosCalificaciones = await pool.request()
             .query(`
                 SELECT 
+                    u.UsuarioID,
                     u.NombreCompleto,
-                    COALESCE(AVG(c.Calificacion), 0) AS CalificacionPromedio
+                    COALESCE(AVG(c.Estrellas), 0) AS CalificacionPromedio
                 FROM 
                     Usuarios u
                 LEFT JOIN 
                     Calificaciones c ON u.UsuarioID = c.UsuarioID
                 GROUP BY 
-                    u.NombreCompleto
+                    u.UsuarioID, u.NombreCompleto
             `);
 
         res.status(200).json(usuariosCalificaciones.recordset);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Error al obtener los usuarios y sus calificaciones' });
     }
 };
 
-// Endpoint para obtener información de todos los conductores
 export const obtenerConductores = async (req, res) => {
     try {
         const pool = await getConnection();
@@ -180,25 +179,27 @@ export const obtenerConductores = async (req, res) => {
         const conductores = await pool.request()
             .query(`
                 SELECT 
-                    c.ConductorID,
-                    c.NombreCompleto,
-                    c.Telefono,
-                    COALESCE(AVG(cal.Calificacion), 0) AS CalificacionPromedio
+                    u.UsuarioID AS ConductorID,
+                    u.NombreCompleto,
+                    u.Telefono,
+                    COALESCE(AVG(c.Estrellas), 0) AS CalificacionPromedio
                 FROM 
-                    Conductores c
+                    Conductores con
+                INNER JOIN 
+                    Usuarios u ON con.ConductorID = u.UsuarioID
                 LEFT JOIN 
-                    Calificaciones cal ON c.ConductorID = cal.ConductorID
+                    Calificaciones c ON con.ConductorID = c.ConductorID
                 GROUP BY 
-                    c.ConductorID, c.NombreCompleto, c.Telefono
+                    u.UsuarioID, u.NombreCompleto, u.Telefono
             `);
 
         res.status(200).json(conductores.recordset);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Error al obtener los conductores' });
     }
 };
 
-// Endpoint para obtener estadísticas de uso de viajes
 export const obtenerEstadisticasUso = async (req, res) => {
     try {
         const pool = await getConnection();
@@ -206,9 +207,9 @@ export const obtenerEstadisticasUso = async (req, res) => {
         const estadisticas = await pool.request()
             .query(`
                 SELECT 
-                    SUM(CASE WHEN Estado = 'Completado' THEN 1 ELSE 0 END) AS ViajesCompletados,
+                    SUM(CASE WHEN Estado = 'Finalizado' THEN 1 ELSE 0 END) AS ViajesCompletados,
                     SUM(CASE WHEN Estado = 'Cancelado' THEN 1 ELSE 0 END) AS ViajesCancelados,
-                    SUM(CASE WHEN Estado = 'En Espera' THEN 1 ELSE 0 END) AS ViajesEnEspera
+                    SUM(CASE WHEN Estado = 'Pendiente' THEN 1 ELSE 0 END) AS ViajesEnEspera
                 FROM 
                     Viajes
             `);
@@ -219,7 +220,7 @@ export const obtenerEstadisticasUso = async (req, res) => {
             ViajesEnEspera: estadisticas.recordset[0].ViajesEnEspera
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Error al obtener las estadísticas de uso de viajes' });
     }
 };
-
