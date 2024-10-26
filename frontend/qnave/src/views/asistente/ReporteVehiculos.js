@@ -5,7 +5,7 @@ function ReporteVehiculos() {
     const [vehiculos, setVehiculos] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/asistant/getVehiculeReport')
+        fetch('http://34.30.112.78:5000/api/asistant/getVehiculeReport')
             .then(response => response.json())
             .then(data => setVehiculos(data))
             .catch(error => console.error('Error:', error));

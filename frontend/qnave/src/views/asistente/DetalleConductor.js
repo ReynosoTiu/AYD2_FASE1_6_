@@ -19,7 +19,7 @@ const DetalleConductor = () => {
     useEffect(() => {
         const fetchConductor = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/asistant/getDriverById/${id}`);
+                const response = await fetch(`http://34.30.112.78:5000/api/asistant/getDriverById/${id}`);
                 const data = await response.json();
                 if (!response.ok) {
                     throw new Error(data.message || 'Failed to fetch');
@@ -39,7 +39,7 @@ const DetalleConductor = () => {
     const handleUpdateConductor = async () => {
         try {
             const asistente = localStorage.getItem("userId");
-            const response = await fetch(`http://localhost:5000/api/asistant/updateConductor`, {
+            const response = await fetch(`http://34.30.112.78:5000/api/asistant/updateConductor`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ const DetalleConductor = () => {
         }
         try {
             let asistente = localStorage.getItem("userId");
-            const response = await fetch("http://localhost:5000/api/asistant/unSuscribeUser", {
+            const response = await fetch("http://34.30.112.78:5000/api/asistant/unSuscribeUser", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

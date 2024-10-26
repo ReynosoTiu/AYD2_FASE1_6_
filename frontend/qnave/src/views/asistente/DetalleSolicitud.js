@@ -10,7 +10,7 @@ const DetalleSolicitud = () => {
     useEffect(() => {
         const fetchSolicitud = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/asistant/getDriverPending/${id}`);
+                const response = await fetch(`http://34.30.112.78:5000/api/asistant/getDriverPending/${id}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch');
                 }
@@ -29,7 +29,7 @@ const DetalleSolicitud = () => {
 
     const handleProcesarSolicitud = async (idEstado) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/asistant/aproveRejectDriver`, {
+            const response = await fetch(`http://34.30.112.78:5000/api/asistant/aproveRejectDriver`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
