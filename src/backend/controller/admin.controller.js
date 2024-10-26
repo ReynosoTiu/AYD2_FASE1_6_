@@ -147,3 +147,79 @@ export const obtenerAsistentes = async (req, res) => {
     }
 };
 
+
+// Endpoint para obtener nombre y calificación de todos los usuarios
+export const obtenerUsuariosYCalificaciones = async (req, res) => {
+    try {
+        const pool = await getConnection();
+
+        const usuariosCalificaciones = await pool.request()
+            .query(`
+                SELECT 
+                    u.NombreCompleto,
+                    COALESCE(AVG(c.Calificacion), 0) AS CalificacionPromedio
+                FROM 
+                    Usuarios u
+                LEFT JOIN 
+                    Calificaciones c ON u.UsuarioID = c.UsuarioID
+                GROUP BY 
+                    u.NombreCompleto
+            `);
+
+        res.status(200).json(usuariosCalificaciones.recordset);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener los usuarios y sus calificaciones' });
+    }
+};
+
+// Endpoint para obtener información de todos los conductores
+export const obtenerConductores = async (req, res) => {
+    try {
+        const pool = await getConnection();
+
+        const conductores = await pool.request()
+            .query(`
+                SELECT 
+                    c.ConductorID,
+                    c.NombreCompleto,
+                    c.Telefono,
+                    COALESCE(AVG(cal.Calificacion), 0) AS CalificacionPromedio
+                FROM 
+                    Conductores c
+                LEFT JOIN 
+                    Calificaciones cal ON c.ConductorID = cal.ConductorID
+                GROUP BY 
+                    c.ConductorID, c.NombreCompleto, c.Telefono
+            `);
+
+        res.status(200).json(conductores.recordset);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener los conductores' });
+    }
+};
+
+// Endpoint para obtener estadísticas de uso de viajes
+export const obtenerEstadisticasUso = async (req, res) => {
+    try {
+        const pool = await getConnection();
+
+        const estadisticas = await pool.request()
+            .query(`
+                SELECT 
+                    SUM(CASE WHEN Estado = 'Completado' THEN 1 ELSE 0 END) AS ViajesCompletados,
+                    SUM(CASE WHEN Estado = 'Cancelado' THEN 1 ELSE 0 END) AS ViajesCancelados,
+                    SUM(CASE WHEN Estado = 'En Espera' THEN 1 ELSE 0 END) AS ViajesEnEspera
+                FROM 
+                    Viajes
+            `);
+
+        res.status(200).json({
+            ViajesCompletados: estadisticas.recordset[0].ViajesCompletados,
+            ViajesCancelados: estadisticas.recordset[0].ViajesCancelados,
+            ViajesEnEspera: estadisticas.recordset[0].ViajesEnEspera
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener las estadísticas de uso de viajes' });
+    }
+};
+
