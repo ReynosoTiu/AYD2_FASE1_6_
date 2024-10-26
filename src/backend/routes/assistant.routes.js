@@ -19,7 +19,7 @@ router.get("/asistant/getVehiculeReport", reporteVehiculos);
 router.post("/asistant/updateConductor", updateConductorInfo);
 router.post("/asistant/generateDiscounts", generarOferta);
 router.get("/asistant/getDiscounts", getOfertas);
-router.post("/asistant/updateConductor", desactivarOferta);
+router.post("/asistant/deleteDiscount", desactivarOferta);
 
 
 

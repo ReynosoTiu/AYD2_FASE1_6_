@@ -6,11 +6,13 @@ import Login from "./views/Login/Login";
 import RegistrarConductor from "./views/conductor/registrarConductor";
 //import HomeAsistente from "./views/asistente/homeAsistente";
 import VisorConductores from "./views/asistente/visorConductores";
+import VisorPromociones from "./views/asistente/visorPromociones";
 import DetalleConductor from "./views/asistente/DetalleConductor";
 import VisorUsuarios from "./views/asistente/visorUsuarios";
 import DetalleUsuario from "./views/asistente/DetalleUsuario";
 import VisorSolicitudEmpleos from "./views/asistente/visorSolicitudEmpleos";
 import DetalleSolicitud from "./views/asistente/DetalleSolicitud";
+import ReporteVehiculos from "./views/asistente/ReporteVehiculos";
 import CambiarContrasenia from "./views/Login/NuevaContrasenia";
 import RegistroUsuario from "./views/usuario/registrarUsuario";
 import HomeUsuario from "./views/usuario/homeUsuario";
@@ -61,6 +63,8 @@ function App() {
           <Route path="usuarios/:id" element={<DetalleUsuario />} />
           <Route path="solicitudes" element={<VisorSolicitudEmpleos />} />
           <Route path="solicitudes/:id" element={<DetalleSolicitud />} />
+          <Route path="reporte" element={<ReporteVehiculos />} />
+          <Route path="promociones" element={<VisorPromociones />} />
         </Route>
         <Route path="/registro-usuario" element={<RegistroUsuario />} />
         <Route path="/usuario/home" element={<HomeUsuario />} />
